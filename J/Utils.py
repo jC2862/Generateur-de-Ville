@@ -1,8 +1,16 @@
 from mathutils import Vector
 import bpy
+import random
+
+def distance2(p1, p2):
+    return pow(p2.x-p1.x,2) + pow(p2.y-p1.y,2)
+
 
 def allonger_arete(vec):
-    ratio = 20/min(abs(vec.x), abs(vec.y))
+    print(vec)
+    X = abs(vec.x) if vec.x != 0 else abs(vec.y) 
+    Y = abs(vec.y) if vec.y != 0 else abs(vec.x)
+    ratio = 20/min(X, Y)
     return ratio * vec 
 
 def rotate(theta, vector):
@@ -51,3 +59,9 @@ def creer_droite_milieux(A, B):
     C1 = milieux_AB + al
     C2 = milieux_AB - al
     return [C1,C2]
+
+def gtRandomPoint(SIZE):
+    Bot_Lef = Vector((-SIZE,-SIZE))
+    Up_Rig = Vector((+SIZE,+SIZE))
+    Diag = Up_Rig - Bot_Lef
+    return Bot_Lef + Vector((Diag.x*random.random(), Diag.y*random.random()))
