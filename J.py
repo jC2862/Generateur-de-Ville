@@ -4,6 +4,12 @@ import sys
 import imp
 from mathutils import Vector
 
+def cleanAll():
+    override = bpy.context.copy()
+    override['selected_bases'] = list(bpy.context.scene.object_bases)
+    bpy.ops.object.delete(override)
+
+
 print("Entrée")
 dir_path = os.path.dirname(__file__)
 sys.path.append(dir_path+"/J")
@@ -52,11 +58,12 @@ def test_intersection():
 def lsystem():
     import Lsystem
     imp.reload(Lsystem)
-
+    sommets = []
     A = Vector((0,0))
     sommets.append(A)
 
 def execute():
+    cleanAll()
     lsystem()
     '''
     for i in range(5):
