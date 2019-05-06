@@ -106,7 +106,7 @@ class Voronoi():
         return aretes
     '''
     def intersections_droite_millieux(droite_millieux, aretes):
-        print("IUNTERSECTION")
+        print("INTERSECTION")
         #Milieu = (droite_millieux[0]+droite_millieux[1])/2
         its = []
         for a in aretes:
@@ -145,13 +145,14 @@ class Voronoi():
                 trf_list.append(inte[0])
                 self.transferer_arete(ancre_A, ancre_B, [inte[0], inte[2]])
             pro_list.append(inte[2])
-
+        print("\tAncre" + str(ancre_A))
         for face in self.Faces:
             if(face[0] == ancre_A):
                 for a in face[1]:
                     #if(a[0] in pro_list or a[1] in pro_list):continue
                     print(a)
                     for i in range(2):
+                        if(a[i] in pro_list):continue
                         if(a[i] in trf_list):
                             #print("a")
                             #print(a)
@@ -165,8 +166,9 @@ class Voronoi():
         return
 
     def test_avec_ancre(self, ancre_A, ancre_B):
+        print("ALOMORA------------------------------------------------")
         droite_millieux = Utils.creer_droite_milieux(ancre_A, ancre_B)
-        ar = self.get_arete_de([ancre_A, ancre_B])
+        ar = self.get_arete_de([ancre_A])
         ints = self.trouver_intersections(droite_millieux, ar)
         #print("LEN" + str(len(ints)))
         if(ints == None or len(ints)%2 != 0):return
@@ -175,6 +177,10 @@ class Voronoi():
             self.Sommets.append(i[2])
             self.remplacer(i)
         #self.print()
+        midInte = self.trouver_intersections([ancre_A, ancre_B], ar)
+        if(midInte != None):
+            print("ABC")
+            return
         self.transferer_possessions(ancre_A, ancre_B, ints)
         n_ar = [ints[0][2],ints[1][2]]
         for face in self.Faces:

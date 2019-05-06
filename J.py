@@ -78,14 +78,15 @@ def lsystem():
 def test_ajout_ancre():
     V = init_voronoi()
     a1 = Vector((-7,-2))
-    a2 = Vector((2,2))
+    a2 = Vector((4,2))
     V.ajouterAncre(a1)
+    V.ajouterAncre(a2)
     return V
 
 def test_ajout_ancres():
     V = init_voronoi()
     a1 = Vector((-7,-2))
-    a2 = Vector((2,2))
+    a2 = Vector((12,2))
     V.ajouterAncre(a1)
     V.ajouterAncre(a2)
     return V
@@ -94,10 +95,11 @@ def test_ajout_3ancres():
     V = init_voronoi()
     a1 = Vector((-7,-2))
     a2 = Vector((2,2))
-    a3 = Vector((4,2))
-    V.ajouterAncre(a1)
+    a3 = Vector((4,-2))
+    
     V.ajouterAncre(a2)
     V.ajouterAncre(a3)
+    V.ajouterAncre(a1)
     return V
 
 def final_test():
@@ -106,15 +108,48 @@ def final_test():
         V.ajouterAncre(Utils.gtRandomPoint(10))
     return V
 
+def fracturing(name):
+    #bpy.data.objects[name].select = True
+    bpy.ops.object.add_fracture_cell_objects(use_layer_next=False,use_debug_redraw=False)
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.data.objects[name].select = True
+    bpy.ops.object.delete(use_global=False)
+    bpy.ops.object.select_all(action='TOGGLE')
+
+def extra_voronoi():
+    bpy.ops.view3d.snap_cursor_to_center()
+    bpy.ops.wm.addon_enable(module="object_fracture_cell")
+    bpy.ops.mesh.primitive_plane_add()
+    bpy.ops.transform.resize(value=(10,10,0))
+    bpy.ops.object.particle_system_add()
+    base = bpy.context.active_object.name
+    fracturing(base)
+    ABC = [obj for obj in bpy.context.scene.objects if obj.name.startswith(base+"_cell")]
+    Utils.unselect()
+    for a in ABC:
+        a.select = True
+    bpy.context.scene.objects.active = ABC[0]
+    bpy.ops.object.join()
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.remove_doubles(threshold=0.01)
+    bpy.ops.mesh.delete(type='ONLY_FACE')
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    #bpy.ops.mesh.remove_doubles(threshold=0.01)
+
+    
+
+
+
+
 def execute():
-<<<<<<< HEAD
-    cleanAll()
-    lsystem()
+    #lsystem()
     '''
     for i in range(5):
         print()
     #V = test_remplacement()
     #V = test_intersection()
+    #V = test_ajout_ancres()
     V = test_ajout_3ancres()
     #V = final_test()
     #Conversion de l'objet
@@ -129,6 +164,6 @@ def execute():
         if(obj == None):continue
         bpy.context.scene.objects.active = obj
         bpy.context.scene.objects.link(obj)
-       
-    return
     '''
+    extra_voronoi()	
+    return
