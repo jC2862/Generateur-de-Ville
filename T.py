@@ -51,7 +51,7 @@ def cuboidV2(v1,v2,nbCuboid,width):
 	
 	direct = v1.co - v2.co
 	len = direct.length
-	mesh_data = bpy.data.meshes.new("Cobble")
+	mesh_data2 = bpy.data.meshes.new("Cobble")
 	for i in range(0,nbCuboid) :
 	    CobbleSize = random.uniform(width/8,width/4) #taille du pavé
 	    fact = random.uniform(0,1) #permet de placer le pavé sur l'axe principal de la route
@@ -61,10 +61,18 @@ def cuboidV2(v1,v2,nbCuboid,width):
 	    YCobble = v1.co[1] - direct[1]*fact
 	    
 	    #face supperieur du pavé
-	    VCobble1 = bm.verts.new((XCobble+decalage,YCobble+decalage,v1.co[2]+0.2 + height))
-	    VCobble2 = bm.verts.new((XCobble+CobbleSize+decalage,YCobble+decalage,v1.co[2]+0.2+ height))
-	    VCobble3 = bm.verts.new((XCobble+CobbleSize+decalage,YCobble+CobbleSize+decalage,v1.co[2]+0.2+ height))
-	    VCobble4 = bm.verts.new((XCobble+decalage,YCobble+CobbleSize+decalage,v1.co[2]+0.2+ height))
+	    VCobble1 = bm.verts.new((	XCobble+decalage,
+	    							YCobble+decalage,
+	    							v1.co[2]+0.2 + height))
+	    VCobble2 = bm.verts.new((	XCobble+CobbleSize+decalage,
+	    							YCobble+decalage,
+	    							v1.co[2]+0.2+ height))
+	    VCobble3 = bm.verts.new((	XCobble+CobbleSize+decalage,
+	    							YCobble+CobbleSize+decalage,
+	    							v1.co[2]+0.2+ height))
+	    VCobble4 = bm.verts.new((	XCobble+decalage,
+	    							YCobble+CobbleSize+decalage,
+	    							v1.co[2]+0.2+ height))
 	    
 	    #face inferieur du pavé
 	    BotVCobble1 = bm.verts.new((VCobble1.co[0],VCobble1.co[1],v1.co[2]+0.2))
@@ -80,10 +88,10 @@ def cuboidV2(v1,v2,nbCuboid,width):
 	    bm.faces.new([VCobble3, VCobble4, BotVCobble4, BotVCobble3])  
 	    bm.faces.new([VCobble4, VCobble1, BotVCobble1, BotVCobble4])
 	    
-	obj = bpy.data.objects.new("Cobble", mesh_data)
+	obj = bpy.data.objects.new("Cobble", mesh_data2)
 	newColor((0.3,0.2,0.2),"CobbleCol")
-	monObj = bpy.context.scene.objects[0]
-	setColorAll(monObj, "CobbleCol")
+	Cobble = bpy.context.scene.objects[1]
+	setColorAll(Cobble, "CobbleCol")
 	bm.to_mesh(me)
 
 def newColor(col, name):
@@ -217,38 +225,97 @@ import time
 cleanAll()
 start2 = time.time()
 J.execute()
-end2 = time.time()
-start = time.time()
 
-C = bpy.context
-scene = C.scene
-bpy.data.objects['Test'].select=True
-scene.objects.active = bpy.data.objects['Test']
-#bpy.ops.mesh.primitive_grid_add(radius=10, view_align=False, enter_editmode=False, location=(0,0,0), layers=(True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))
+for CurObj in bpy.context.scene.objects :
+	CurObj.select = True
+	bpy.context.scene.objects.active = CurObj
+	me = bpy.context.object.data
+	bpy.ops.object.mode_set(mode = 'EDIT')
 
-me = bpy.context.object.data
+	bpy.ops.mesh.delete(type='ONLY_FACE')
+	bpy.ops.mesh.select_mode(type = 'EDGE')
+	bpy.ops.mesh.select_all(action='SELECT')
+	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
+	bpy.ops.transform.resize(value=(0.9, 0.9, 0.9))
 
-bm = bmesh.new()   
-bm.from_mesh(me)   
+	bpy.ops.mesh.select_mode(type = 'FACE')
+	bpy.ops.mesh.select_all(action='SELECT')
+	bpy.ops.mesh.extrude_region_move(
+		TRANSFORM_OT_translate={"value":(0, 0, 0.05) })
+
+	bpy.ops.object.mode_set(mode='OBJECT')
+
+# 	bpy.ops.mesh.inset(
+# 		use_boundary=True, 
+# 		thickness=0.2,
+# 		use_even_offset = True)
+# 	bpy.ops.mesh.select_all(action='INVERT')
+# 	# bpy.ops.mesh.select_face_by_sides()
+# 	bpy.ops.object.mode_set(mode = 'OBJECT')
+# 	CurObj.select = False
+
+# bpy.ops.mesh.primitive_plane_add(radius=10,location=(0, 0, -0.001))
 
 
 
-nbEdges = len(bm.edges) 
-print(nbEdges)
-for index in range(0,nbEdges) :
-    bm.verts.ensure_lookup_table()
-    bm.faces.ensure_lookup_table()
-    bm.edges.ensure_lookup_table()
-    #print(index)
-    createRoad(bm.edges[index])
-    percent(nbEdges,index)
-bm.to_mesh(me)
-bm.free()
-#print()
-end = time.time()
-print("nombre edges : ", nbEdges)
-print("time LSystem: ",end2 - start2)
-print("time route: ",end - start)
-bpy.ops.object.editmode_toggle()
-bpy.ops.mesh.delete(type='VERT')
-bpy.ops.object.editmode_toggle()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	#CurObj.select = False
+# end2 = time.time()
+# start = time.time()
+
+# C = bpy.context
+# scene = C.scene
+# bpy.data.objects['Test'].select=True
+# scene.objects.active = bpy.data.objects['Test']
+# #bpy.ops.mesh.primitive_grid_add(radius=10, view_align=False, enter_editmode=False, location=(0,0,0), layers=(True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))
+
+# me = bpy.context.object.data
+
+# bm = bmesh.new()   
+# bm.from_mesh(me)   
+
+
+
+# nbEdges = len(bm.edges) 
+# print(nbEdges)
+# for index in range(0,nbEdges) :
+#     bm.verts.ensure_lookup_table()
+#     bm.faces.ensure_lookup_table()
+#     bm.edges.ensure_lookup_table()
+#     #print(index)
+#     createRoad(bm.edges[index])
+#     percent(nbEdges,index)
+# bm.to_mesh(me)
+# bm.free()
+# #print()
+# end = time.time()
+# print("nombre edges : ", nbEdges)
+# print("time LSystem: ",end2 - start2)
+# print("time route: ",end - start)
+# bpy.ops.object.editmode_toggle()
+# bpy.ops.mesh.delete(type='VERT')
+# bpy.ops.object.editmode_toggle()
