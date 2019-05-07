@@ -51,7 +51,7 @@ def cuboidV2(v1,v2,nbCuboid,width):
 	
 	direct = v1.co - v2.co
 	len = direct.length
-	mesh_data = bpy.data.meshes.new("Cobble")
+	mesh_data2 = bpy.data.meshes.new("Cobble")
 	for i in range(0,nbCuboid) :
 	    CobbleSize = random.uniform(width/8,width/4) #taille du pavé
 	    fact = random.uniform(0,1) #permet de placer le pavé sur l'axe principal de la route
@@ -61,10 +61,18 @@ def cuboidV2(v1,v2,nbCuboid,width):
 	    YCobble = v1.co[1] - direct[1]*fact
 	    
 	    #face supperieur du pavé
-	    VCobble1 = bm.verts.new((XCobble+decalage,YCobble+decalage,v1.co[2]+0.2 + height))
-	    VCobble2 = bm.verts.new((XCobble+CobbleSize+decalage,YCobble+decalage,v1.co[2]+0.2+ height))
-	    VCobble3 = bm.verts.new((XCobble+CobbleSize+decalage,YCobble+CobbleSize+decalage,v1.co[2]+0.2+ height))
-	    VCobble4 = bm.verts.new((XCobble+decalage,YCobble+CobbleSize+decalage,v1.co[2]+0.2+ height))
+	    VCobble1 = bm.verts.new((	XCobble+decalage,
+	    							YCobble+decalage,
+	    							v1.co[2]+0.2 + height))
+	    VCobble2 = bm.verts.new((	XCobble+CobbleSize+decalage,
+	    							YCobble+decalage,
+	    							v1.co[2]+0.2+ height))
+	    VCobble3 = bm.verts.new((	XCobble+CobbleSize+decalage,
+	    							YCobble+CobbleSize+decalage,
+	    							v1.co[2]+0.2+ height))
+	    VCobble4 = bm.verts.new((	XCobble+decalage,
+	    							YCobble+CobbleSize+decalage,
+	    							v1.co[2]+0.2+ height))
 	    
 	    #face inferieur du pavé
 	    BotVCobble1 = bm.verts.new((VCobble1.co[0],VCobble1.co[1],v1.co[2]+0.2))
@@ -80,10 +88,10 @@ def cuboidV2(v1,v2,nbCuboid,width):
 	    bm.faces.new([VCobble3, VCobble4, BotVCobble4, BotVCobble3])  
 	    bm.faces.new([VCobble4, VCobble1, BotVCobble1, BotVCobble4])
 	    
-	obj = bpy.data.objects.new("Cobble", mesh_data)
+	obj = bpy.data.objects.new("Cobble", mesh_data2)
 	newColor((0.3,0.2,0.2),"CobbleCol")
-	monObj = bpy.context.scene.objects[0]
-	setColorAll(monObj, "CobbleCol")
+	Cobble = bpy.context.scene.objects[1]
+	setColorAll(Cobble, "CobbleCol")
 	bm.to_mesh(me)
 
 def newColor(col, name):

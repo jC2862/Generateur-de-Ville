@@ -107,7 +107,6 @@ def final_test():
     return V
 
 def execute():
-<<<<<<< HEAD
     cleanAll()
     lsystem()
     '''
