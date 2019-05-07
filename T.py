@@ -226,8 +226,64 @@ cleanAll()
 start2 = time.time()
 J.execute()
 
-monObj = bpy.context.scene.objects[0]
-print (monObj)
+for CurObj in bpy.context.scene.objects :
+	CurObj.select = True
+	bpy.context.scene.objects.active = CurObj
+	me = bpy.context.object.data
+	bpy.ops.object.mode_set(mode = 'EDIT')
+
+	bpy.ops.mesh.delete(type='ONLY_FACE')
+	bpy.ops.mesh.select_mode(type = 'EDGE')
+	bpy.ops.mesh.select_all(action='SELECT')
+	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
+	bpy.ops.transform.resize(value=(0.9, 0.9, 0.9))
+
+	bpy.ops.mesh.select_mode(type = 'FACE')
+	bpy.ops.mesh.select_all(action='SELECT')
+	bpy.ops.mesh.extrude_region_move(
+		TRANSFORM_OT_translate={"value":(0, 0, 0.05) })
+
+	bpy.ops.object.mode_set(mode='OBJECT')
+
+# 	bpy.ops.mesh.inset(
+# 		use_boundary=True, 
+# 		thickness=0.2,
+# 		use_even_offset = True)
+# 	bpy.ops.mesh.select_all(action='INVERT')
+# 	# bpy.ops.mesh.select_face_by_sides()
+# 	bpy.ops.object.mode_set(mode = 'OBJECT')
+# 	CurObj.select = False
+
+# bpy.ops.mesh.primitive_plane_add(radius=10,location=(0, 0, -0.001))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	#CurObj.select = False
 # end2 = time.time()
 # start = time.time()
 
