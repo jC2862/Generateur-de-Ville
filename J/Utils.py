@@ -2,6 +2,10 @@ from mathutils import Vector
 import bpy
 import random
 
+def unselect():
+    for obj in bpy.data.objects:
+        obj.select = False
+
 def distance2(p1, p2):
     return pow(p2.x-p1.x,2) + pow(p2.y-p1.y,2)
 
@@ -60,7 +64,7 @@ def creer_droite_milieux(A, B):
     C2 = milieux_AB - al
     return [C1,C2]
 
-def gtRandomPoint(SIZE):
+def getRandomPoint(SIZE):
     Bot_Lef = Vector((-SIZE,-SIZE))
     Up_Rig = Vector((+SIZE,+SIZE))
     Diag = Up_Rig - Bot_Lef

@@ -225,38 +225,41 @@ import time
 cleanAll()
 start2 = time.time()
 J.execute()
-end2 = time.time()
-start = time.time()
 
-C = bpy.context
-scene = C.scene
-bpy.data.objects['Test'].select=True
-scene.objects.active = bpy.data.objects['Test']
-#bpy.ops.mesh.primitive_grid_add(radius=10, view_align=False, enter_editmode=False, location=(0,0,0), layers=(True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))
+monObj = bpy.context.scene.objects[0]
+print (monObj)
+# end2 = time.time()
+# start = time.time()
 
-me = bpy.context.object.data
+# C = bpy.context
+# scene = C.scene
+# bpy.data.objects['Test'].select=True
+# scene.objects.active = bpy.data.objects['Test']
+# #bpy.ops.mesh.primitive_grid_add(radius=10, view_align=False, enter_editmode=False, location=(0,0,0), layers=(True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))
 
-bm = bmesh.new()   
-bm.from_mesh(me)   
+# me = bpy.context.object.data
+
+# bm = bmesh.new()   
+# bm.from_mesh(me)   
 
 
 
-nbEdges = len(bm.edges) 
-print(nbEdges)
-for index in range(0,nbEdges) :
-    bm.verts.ensure_lookup_table()
-    bm.faces.ensure_lookup_table()
-    bm.edges.ensure_lookup_table()
-    #print(index)
-    createRoad(bm.edges[index])
-    percent(nbEdges,index)
-bm.to_mesh(me)
-bm.free()
-#print()
-end = time.time()
-print("nombre edges : ", nbEdges)
-print("time LSystem: ",end2 - start2)
-print("time route: ",end - start)
-bpy.ops.object.editmode_toggle()
-bpy.ops.mesh.delete(type='VERT')
-bpy.ops.object.editmode_toggle()
+# nbEdges = len(bm.edges) 
+# print(nbEdges)
+# for index in range(0,nbEdges) :
+#     bm.verts.ensure_lookup_table()
+#     bm.faces.ensure_lookup_table()
+#     bm.edges.ensure_lookup_table()
+#     #print(index)
+#     createRoad(bm.edges[index])
+#     percent(nbEdges,index)
+# bm.to_mesh(me)
+# bm.free()
+# #print()
+# end = time.time()
+# print("nombre edges : ", nbEdges)
+# print("time LSystem: ",end2 - start2)
+# print("time route: ",end - start)
+# bpy.ops.object.editmode_toggle()
+# bpy.ops.mesh.delete(type='VERT')
+# bpy.ops.object.editmode_toggle()
