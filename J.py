@@ -3,6 +3,7 @@ import os
 import sys
 import imp
 from mathutils import Vector
+import random
 
 def cleanAll():
     override = bpy.context.copy()
@@ -113,22 +114,29 @@ def fracturing(name):
     bpy.data.objects[name].select = True
     bpy.context.scene.objects.active = bpy.data.objects[name]
     bpy.ops.object.particle_system_add()
-    PA = bpy.context.scene.objects.active.particle_systems['ParticleSystem'].settings 
+    PZ = bpy.context.scene.objects.active.particle_systems['ParticleSystem']
+    PZ.seed = random.randint((-0x7fffffff - 1), 0x7fffffff)
+    PA = PZ.settings
     PA.count = 10
     PA.frame_end = 2
+    PA.distribution = 'RAND'
     bpy.ops.object.add_fracture_cell_objects(use_layer_next=False,use_debug_redraw=False)
     bpy.ops.object.select_all(action='DESELECT')
     bpy.data.objects[name].select = True
     bpy.ops.object.particle_system_remove()
-    #bpy.ops.object.delete(use_global=False)
-    #bpy.ops.object.select_all(action='TOGGLE')
+    #Suppression fracturing
+    bpy.ops.object.delete(use_global=False)
+    bpy.ops.object.select_all(action='TOGGLE')
     
 def set_parent(child_name, parent_name):
-    Utils.unselect()
+    #Utils.unselect()
     bpy.data.objects[child_name].select = True
     bpy.data.objects[parent_name].select = True
     bpy.context.scene.objects.active = bpy.data.objects[parent_name]
-    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
+    bpy.ops.object.parent_set( keep_transform=True)
+    bpy.context.scene.objects.active = None
+    bpy.data.objects[parent_name].select = False
+    bpy.data.objects[child_name].select = False
 
 
 def extra_voronoi():
@@ -146,9 +154,17 @@ def extra_voronoi():
         #a.select = True
         fracturing(a.name)
         Z = [obj for obj in bpy.context.scene.objects if obj.name.startswith(a.name+"_cell")]
+        Utils.unselect()
         for z in Z:
+            z.select = True
+            bpy.context.scene.objects.active = z
+            bpy.ops.transform.resize(value=(0.8,0.8,0.8))
+            bpy.context.scene.objects.active = None
+            z.select = False
+        ''' Ne pas activer quand suppression dans fracturing
             set_parent(z.name, a.name)
         set_parent(a.name, base)
+        '''
 
 
     
@@ -159,8 +175,8 @@ def extra_voronoi():
     bpy.ops.mesh.remove_doubles(threshold=0.01)
     bpy.ops.mesh.delete(type='ONLY_FACE')
     bpy.ops.object.mode_set(mode='OBJECT')
-    '''
     bpy.context.scene.objects.active.name = "Test"
+    '''
     bpy.ops.wm.addon_disable(module="object_fracture_cell")
     #bpy.ops.mesh.remove_doubles(threshold=0.01)
 
