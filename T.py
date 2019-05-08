@@ -226,6 +226,7 @@ cleanAll()
 start2 = time.time()
 J.execute()
 
+faces = []
 for CurObj in bpy.context.scene.objects :
 	CurObj.select = True
 	bpy.context.scene.objects.active = CurObj
@@ -237,6 +238,7 @@ for CurObj in bpy.context.scene.objects :
 	bpy.ops.mesh.select_all(action='SELECT')
 	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
 	bpy.ops.transform.resize(value=(0.9, 0.9, 0.9))
+	faces.append([e for e in bpy.context.active_object.data.edges if e.select])
 
 	bpy.ops.mesh.select_mode(type = 'FACE')
 	bpy.ops.mesh.select_all(action='SELECT')
@@ -244,6 +246,8 @@ for CurObj in bpy.context.scene.objects :
 		TRANSFORM_OT_translate={"value":(0, 0, 0.05) })
 
 	bpy.ops.object.mode_set(mode='OBJECT')
+	bpy.ops.object.select_all(action='DESELECT')
+
 
 # 	bpy.ops.mesh.inset(
 # 		use_boundary=True, 
