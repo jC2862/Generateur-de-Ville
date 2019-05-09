@@ -242,8 +242,7 @@ def createRock() :
 		bpy.ops.object.modifier_add(type='SUBSURF')
 		bpy.ops.object.mode_set(mode='EDIT')
 		bpy.ops.mesh.subdivide()
-		bpy.ops.transform.vertex_random(offset=0.001)
-		bpy.ops.transform.vertex_random()
+		bpy.ops.transform.vertex_random(offset=0.08)
 	bpy.ops.object.mode_set(mode='OBJECT')
 	bpy.ops.object.select_pattern(pattern="Cube*")
 	bpy.ops.group.create()
@@ -271,8 +270,8 @@ def createParticules () :
 	bpy.data.particles[lastPart].phase_factor_random = 2
 
 	bpy.data.particles[lastPart].particle_size = 0.15
-	bpy.data.particles[lastPart].count = 350
-	bpy.data.particles[lastPart].hair_length = 4.00
+	bpy.data.particles[lastPart].count = 1000
+	bpy.data.particles[lastPart].hair_length = 2.5
 	bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
 
 
@@ -292,6 +291,11 @@ for CurObj in bpy.context.scene.objects :
 	CurObj.select = True
 	bpy.context.scene.objects.active = CurObj
 	me = bpy.context.object.data
+	bpy.ops.object.duplicate()
+	for obj in bpy.context.selected_objects:
+		obj.name = "Pavement"
+	bpy.ops.transform.resize(value=(1.1, 1.1, 1.1))
+
 	bpy.ops.object.mode_set(mode = 'EDIT')
 
 	bpy.ops.mesh.delete(type='ONLY_FACE')
@@ -309,7 +313,7 @@ for CurObj in bpy.context.scene.objects :
 
 	bpy.ops.object.select_all(action='DESELECT')
 
-bpy.ops.mesh.primitive_plane_add(radius=planR, location=(0, 0, 0.001))
+bpy.ops.mesh.primitive_plane_add(radius=planR, location=(0, 0, 0))
 ColorUnderRoad()
 for edges in faces :
 	for edge in edges :
