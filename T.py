@@ -2,6 +2,12 @@ import bpy
 import bmesh
 import random
 import mathutils
+import F    
+import J
+import time
+
+planR = 10
+density = 300
 
 def cleanAll():
     bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -37,7 +43,7 @@ def min (a,b,c,d) :
 
 def percent (max, current) :
 	percent = (current/max)*100
-	print(int(percent) , "%")
+	# print(int(percent) , "%")
 
 def setColorAll(obj, color):
     bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -217,19 +223,79 @@ def createRoad (edge) :
     monObj = bpy.context.scene.objects[0]
     setColorAll(monObj, "roadCol")
     
-    
-    
-import J
-import time
+# def createRock() :
+# 	X = random.uniform(-planR,planR)
+# 	Y = random.uniform(-planR,planR)
+# 	RockRadius = random.uniform(0,0.1)
+# 	bpy.ops.mesh.primitive_cube_add(radius=RockRadius, location=(X, Y, 0))
+# 	bpy.ops.object.modifier_add(type='SUBSURF')
+# 	print("test")
+
+def createRock() : 
+	for i in range(0,10) :
+		bpy.ops.object.mode_set(mode='OBJECT')
+		bpy.ops.object.select_all(action='DESELECT')
+		X = random.uniform(-planR,planR)
+		Y = random.uniform(-planR,planR)
+		RockRadius = 0.1
+		bpy.ops.mesh.primitive_cube_add(radius=RockRadius, location=(X, Y, -0.5))
+		bpy.ops.object.modifier_add(type='SUBSURF')
+		bpy.ops.object.mode_set(mode='EDIT')
+		bpy.ops.mesh.subdivide()
+		bpy.ops.transform.vertex_random(offset=0.08)
+	bpy.ops.object.mode_set(mode='OBJECT')
+	bpy.ops.object.select_pattern(pattern="Cube*")
+	bpy.ops.group.create()
+
+
+def createParticules () :
+	createRock()
+
+	bpy.ops.object.mode_set(mode='OBJECT')
+	bpy.ops.object.select_all(action='DESELECT')
+	bpy.context.scene.objects["Plane"].select = True
+	bpy.context.scene.objects.active = bpy.context.scene.objects["Plane"]
+
+	bpy.ops.object.particle_system_remove()
+	bpy.ops.object.particle_system_add()
+	lastPart = len(bpy.data.particles) -1
+	bpy.data.particles[lastPart].type = 'HAIR'
+	bpy.data.particles[lastPart].render_type = 'GROUP'
+	groupLen = len(bpy.data.groups) -1
+
+	bpy.data.particles[lastPart].dupli_group = bpy.data.groups[groupLen]
+	bpy.data.particles[lastPart].use_advanced_hair = True
+	bpy.data.particles[lastPart].use_rotations = True
+	bpy.data.particles[lastPart].phase_factor = 0.5
+	bpy.data.particles[lastPart].phase_factor_random = 2
+
+	bpy.data.particles[lastPart].particle_size = 0.15
+	bpy.data.particles[lastPart].count = 1000
+	bpy.data.particles[lastPart].hair_length = 2.5
+	bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
+
+
+
+
+def ColorUnderRoad () :
+	newColor((0.9,0.6,0.3),"UnderRoad")
+	monObj = bpy.context.scene.objects["Plane"]
+	setColorAll(monObj, "UnderRoad")
 
 cleanAll()
 start2 = time.time()
 J.execute()
 
+faces = []
 for CurObj in bpy.context.scene.objects :
 	CurObj.select = True
 	bpy.context.scene.objects.active = CurObj
 	me = bpy.context.object.data
+	bpy.ops.object.duplicate()
+	for obj in bpy.context.selected_objects:
+		obj.name = "Pavement"
+	bpy.ops.transform.resize(value=(1.1, 1.1, 1.1))
+
 	bpy.ops.object.mode_set(mode = 'EDIT')
 
 	bpy.ops.mesh.delete(type='ONLY_FACE')
@@ -237,13 +303,25 @@ for CurObj in bpy.context.scene.objects :
 	bpy.ops.mesh.select_all(action='SELECT')
 	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
 	bpy.ops.transform.resize(value=(0.9, 0.9, 0.9))
+	faces.append([e for e in bpy.context.active_object.data.edges if e.select])
 
-	bpy.ops.mesh.select_mode(type = 'FACE')
 	bpy.ops.mesh.select_all(action='SELECT')
 	bpy.ops.mesh.extrude_region_move(
 		TRANSFORM_OT_translate={"value":(0, 0, 0.05) })
 
 	bpy.ops.object.mode_set(mode='OBJECT')
+
+	bpy.ops.object.select_all(action='DESELECT')
+
+bpy.ops.mesh.primitive_plane_add(radius=planR, location=(0, 0, 0))
+ColorUnderRoad()
+for edges in faces :
+	for edge in edges :
+		for vert in edge.vertices :
+			print ("id : ",vert)
+	print()
+
+createParticules()
 
 # 	bpy.ops.mesh.inset(
 # 		use_boundary=True, 

@@ -51,7 +51,7 @@ def test_intersection():
     #V.Sommets.append(droite_millieux[0])
     #V.Sommets.append(droite_millieux[1])
     V.test_avec_ancre(a1, a2)
-    print(V.conversion_Ancre(a1)[1])
+    # print(V.conversion_Ancre(a1)[1])
     #Its = Utils.intersection([Vector((-10,10)),Vector((10,10))], droite_millieux)
     #V.Ancres.append(Its)
     #print(Its)
@@ -64,7 +64,7 @@ def test_transfert():
     V.Ancres.append(a2)
     V.Faces.append([a1,V.Aretes])
     V.Faces.append([a2,[]])
-    print(V.Aretes[0])
+    # print(V.Aretes[0])
     V.transferer_arete(a1,a2, V.Aretes[0])
 
     return V
