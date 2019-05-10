@@ -63,6 +63,28 @@ class House:
                 "number_cuts"           : 1,
                 "smoothness"            : 0,     
                 "falloff"               : 'INVERSE_SQUARE',
+                "edge_index"            : 3,
+                "mesh_select_mode_init" : (False, True, False)
+            },
+            TRANSFORM_OT_edge_slide = {
+                "value"           : -0.85,
+                "mirror"          : False, 
+                "snap"            : False,
+                "snap_target"     : 'CLOSEST',
+                "snap_point"      : (0, 0, 0),
+                "snap_align"      : False,
+                "snap_normal"     : (0, 0, 0),
+                "correct_uv"      : False,
+                "release_confirm" : False
+            }
+        )
+        bpy.ops.mesh.select_all(action = 'DESELECT')
+        bpy.ops.mesh.loopcut_slide(
+            override, 
+            MESH_OT_loopcut = {
+                "number_cuts"           : 1,
+                "smoothness"            : 0,     
+                "falloff"               : 'INVERSE_SQUARE',
                 "edge_index"            : 11,
                 "mesh_select_mode_init" : (False, True, False)
             },

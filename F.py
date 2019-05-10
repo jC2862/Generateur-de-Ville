@@ -7,8 +7,11 @@ import imp
 dir_path = os.path.dirname(__file__)
 sys.path.append(dir_path+"/F")
 
-import HouseGenerator
-imp.reload(HouseGenerator)
+import Neighbourhood
+imp.reload(Neighbourhood)
 
-do = HouseGenerator.main()
+#cree un grp de taille 2 * 2 (en forme de grille)
+n = Neighbourhood.Neighbourhood(2, 2)        
+res = n.create_neighbourhood()        
+n.to_group("Neighborhood", res)
 bpy.ops.object.mode_set(mode = 'OBJECT') 
