@@ -56,6 +56,7 @@ class House :
         avancee = self.length_front - self.width_L
          #on scale pour ne plus avoir a le faire plus tard
         bpy.ops.transform.resize(value = (self.width_front, avancee, self.height), constraint_axis=(True, True, True)) 
+        bpy.ops.object.mode_set(mode = 'EDIT')
         #on recupere notre mesh que l'on va encore modifier
         bm = bmesh.from_edit_mesh(bpy.context.edit_object.data)
         bm.edges.ensure_lookup_table()
@@ -97,6 +98,28 @@ class House :
         #House.deselect_All()
         #loop cut ici
         #on fait une loop cut automatiquement afin de séparer la maison en 2
+        bpy.ops.mesh.loopcut_slide(
+            override, 
+            MESH_OT_loopcut = {
+                "number_cuts"           : 1,
+                "smoothness"            : 0,     
+                "falloff"               : 'INVERSE_SQUARE',
+                "edge_index"            : 3,
+                "mesh_select_mode_init" : (False, True, False)
+            },
+            TRANSFORM_OT_edge_slide = {
+                "value"           : -0.85,
+                "mirror"          : False, 
+                "snap"            : False,
+                "snap_target"     : 'CLOSEST',
+                "snap_point"      : (0, 0, 0),
+                "snap_align"      : False,
+                "snap_normal"     : (0, 0, 0),
+                "correct_uv"      : False,
+                "release_confirm" : False
+            }
+        )
+        bpy.ops.mesh.select_all(action = 'DESELECT')
         bpy.ops.mesh.loopcut_slide(
             override, 
             MESH_OT_loopcut = {
@@ -179,30 +202,30 @@ class House :
         # z -= height of roof 
         #Comme notre construction est toujours la même on s'attend à ce que les indices des sommets soient inchangés d'une maison à l'autre.
         bm.verts.ensure_lookup_table()
-        y = bm.verts[16].co[1]
+        y = bm.verts[24].co[1]
         for vert in bm.verts :
-            if vert.index == 27 or vert.index == 29 :
+            if vert.index == 35 or vert.index == 37 :
                 hfix = vert.co[0]
                 if hfix == 0 :
                     hfix = 1
                 vert.co[0] += (abs(vert.co[0])/hfix) * self.roof_width 
                 vert.co[2] -= self.roof_width
-            elif vert.index == 28 or vert.index == 30 :
+            elif vert.index == 36 or vert.index == 38 :
                 hfix = vert.co[0]
                 if hfix == 0 :
                     hfix = 1   
                 vert.co[0] += (abs(vert.co[0])/hfix) * self.roof_width 
                 hfix = vert.co[1]
                 if y == hfix :
-                    hfix = 1
+                    hfix =  1
                 vert.co[1] -= (abs(y - vert.co[1])/(y - hfix)) * self.roof_width 
                 vert.co[2] -= self.roof_width
-            elif vert.index == 31 or vert.index == 32 :
+            elif vert.index == 39 or vert.index == 40 :
                 hfix = vert.co[1]
-                if hfix == 0 :
-                    hfix = 1
-                vert.co[1] -= (abs(y - vert.co[1])/(y - hfix)) * self.roof_width 
-                vert.co[2] -= self.roof_width     
+                if hfix == y :
+                    hfix =  1
+                vert.co[1] -= (abs(y - vert.co[1])/(y - hfix)) * self.roof_width
+                vert.co[2] -= self.roof_width    
         
         bpy.ops.object.mode_set(mode = 'EDIT') 
         bm.faces.ensure_lookup_table()
@@ -212,8 +235,11 @@ class House :
         select = [f for f in bm.faces if abs(f.normal[0]) == 1 or abs(f.normal[1]) == 1]
         for f in select :
             for v in f.verts :
-                if v.index == 34 or v.index == 35 :
+                if v.index == 42 or v.index == 43 :
                     f.select = True
         bpy.ops.mesh.select_mode(type='FACE')
-        bpy.ops.transform.shrink_fatten(value = -self.roof_width)         
+        bpy.ops.transform.shrink_fatten(value = -self.roof_width * 0.5)         
         return len(bm.verts) 
+  
+#height, width_front, length_front, width_L, length_L, house_roof_height, roof_width    
+#h = House(1, 3, 4, 2, 6, 4, 0.15)    
