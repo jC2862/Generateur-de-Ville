@@ -87,16 +87,23 @@ def execute(road):
             i = i+1
     print(cubes[0])
 
-    hor = Vector((1,0))
     #Conversion
     CUBAS = []
     for cube in cubes:
         new_cube = []
         for i in range(len(cube)-1):
             cu = cube[i]
-            vec = cube[i+1][0].co-cube[i][0].co
+            vec = (cube[i+1][0].co-cube[i][0].co).normalized()
             print("VEC" + str(vec))
-            rot = math.acos(hor.dot(vec.normalized()))
+            rot = 0 
+            if vec.x != 0 and vec.y != 0:
+                rot = math.atan(vec.y/vec.x)
+                rot += math.pi if vec.x < 0 else 0
+            else:
+                if vec.x != 0:
+                    rot = vec.y * math.pi/2
+                elif vec.y !=0:
+                    rot = vec.x * math.pi
             new_cube.append([road.matrix_world * cu[0].co, (rot), cu[1]])
         cu = cube[len(cube)-1]
         new_cube.append([cu[0].co])
