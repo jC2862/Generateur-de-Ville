@@ -12,11 +12,6 @@ for im in IMPORTS:
     sys.path.append(dir_path+"/"+im)
 import HouseTypeA, HouseTypeB, F_Utils
 
-view3d = bpy.context.screen.areas[4]
-context_override = {'window': bpy.context.window, 
-                    'screen': bpy.context.screen, 
-                    'area' : 'TEXT_EDITOR'}
-
 #Faut jouer un peu avec les intervales 
 def generateRandomHouse() :
     type = randint(0, 1)
