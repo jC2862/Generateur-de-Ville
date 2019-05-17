@@ -9,7 +9,7 @@ from pathlib import Path
 
 import os
 #SCALE = 0.025
-SCALE = 0.05
+SCALE = 0.15
 #Deplacement maximal pour 1 frames
 VITESSE_DEPLACEMENT = 0.04
 
@@ -82,12 +82,11 @@ def execute(road):
     #Calculs
     for cube in cubes:
         i=0
-        while cube[i][1] < 250:
+        while cube[i][1] < bpy.data.scenes["Scene"].frame_end:
             to_append = iteration(cube[i], cube[i-1][0] if i > 0 else None)
             cube.append(to_append)
             i = i+1
     print(cubes[0])
-
     #Conversion
     CUBAS = []
     for cube in cubes:
@@ -99,19 +98,25 @@ def execute(road):
             rot = 0 
             if vec.x != 0 and vec.y != 0:
                 rot = math.atan(vec.y/vec.x)
-                rot += math.pi if vec.x < 0 else 0
+                rot += (math.pi if vec.x < 0 else 0)
             else:
                 if vec.x != 0:
-                    rot = vec.y * math.pi/2 
+                    rot = math.pi if vec.x <0 else 0
                 elif vec.y !=0:
-                    rot = vec.x * math.pi 
+                    rot = vec.y * math.pi/2 
+
+            #rot = -rot if vec.x < 0 else +rot 
+            pre_rot = new_cube[len(new_cube)-1][1] if i>0 else rot
+
+            #rot = rot if rot > 0 else math.pi*2 + rot
             new_cube.append([road.matrix_world * cu[0].co, (rot), cu[1]])
         cu = cube[len(cube)-1]
-        new_cube.append([cu[0].co])
+        new_cube.append([road.matrix_world * cu[0].co, cu[1]])
         CUBAS.append(new_cube)
     #Keycap
     bpy.ops.object.mode_set(mode='OBJECT')
     print(len(CUBAS))
+    print(CUBAS[0])
 
     print(CUBAS[0][len(CUBAS[0])-1])
 
@@ -132,7 +137,8 @@ def execute(road):
                 entity.keyframe_insert(data_path="rotation_euler", frame=cube[j][2]-5)
                 entity.keyframe_insert(data_path="location", frame=(cube[j][2]-1))
         entity.location = cube[len(cube)-1][0]
-        entity.keyframe_insert(data_path="location", frame=(cube[j][2]))
+        entity.keyframe_insert(data_path="location", frame=(cube[len(cube)-1][1]))
+        print("NEWFGHJKLM - ---------------------------------------------" + str(cube[len(cube)-1]))
         print(cube[len(cube)-1] )
 
 
