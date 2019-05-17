@@ -17,7 +17,7 @@ def createBush() :
 	#on créé ensuite un groupe pour les buissons
 	bpy.ops.object.mode_set(mode='OBJECT')
 	bpy.ops.object.select_pattern(pattern="Icosphere*")
-	bpy.ops.group.create()
+	bpy.ops.group.create(name="Bush")
 
 #Creation d'un groupe d'objet pierre sur le meme foncitonnement que les buissons
 def createRock() : 
@@ -38,7 +38,7 @@ def createRock() :
 		bpy.ops.object.mode_set(mode='EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
 	bpy.ops.object.select_pattern(pattern="Cube*")
-	bpy.ops.group.create()
+	bpy.ops.group.create(name="Rock")
 
 #application des particules de pierres sur l'objet "Plane"
 def createParticulesRock () :
@@ -53,9 +53,8 @@ def createParticulesRock () :
 	lastPart = len(bpy.data.particles) -1
 	bpy.data.particles[lastPart].type = 'HAIR'
 	bpy.data.particles[lastPart].render_type = 'GROUP'
-	groupLen = len(bpy.data.groups) -1
 
-	bpy.data.particles[lastPart].dupli_group = bpy.data.groups[groupLen]
+	bpy.data.particles[lastPart].dupli_group = bpy.data.groups["Rock"]
 	bpy.data.particles[lastPart].use_advanced_hair = True
 	bpy.data.particles[lastPart].use_rotations = True
 	#Permet de ne pas avoir des pierre verticales
@@ -92,9 +91,8 @@ def createParticulesBush () :
 			lastPart = len(bpy.data.particles) -1
 			bpy.data.particles[lastPart].type = 'HAIR'
 			bpy.data.particles[lastPart].render_type = 'GROUP'
-			groupLen = len(bpy.data.groups) -1
 
-			bpy.data.particles[lastPart].dupli_group = bpy.data.groups[groupLen]
+			bpy.data.particles[lastPart].dupli_group = bpy.data.groups["Bush"]
 			bpy.data.particles[lastPart].use_advanced_hair = True
 			bpy.data.particles[lastPart].use_rotations = True
 			bpy.data.particles[lastPart].phase_factor = 0.5
