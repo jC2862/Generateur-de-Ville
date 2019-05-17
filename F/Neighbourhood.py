@@ -37,3 +37,7 @@ class Neighbourhood :
         for obj in list:
             if obj.name not in group.objects:
                 group.objects.link(obj)
+
+#n = Neighbourhood(2, 2)        
+#res = n.create_neighbourhood()        
+#n.to_group("Neighborhood", res)

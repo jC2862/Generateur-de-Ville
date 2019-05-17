@@ -1,7 +1,7 @@
 import bpy
 import bmesh
 
-#Utile pour faire un loop cut
+#Utile pour faire un loop cut / deplacer le curseur3D
 def view3d_find( return_area = False ):
     # returns first 3d view, normally we get from context
     for area in bpy.context.window.screen.areas:
@@ -40,3 +40,16 @@ def clean_Current() :
     bpy.ops.object.mode_set(mode = 'EDIT') 
     bpy.data.objects.remove(bpy.context.edit_object.data, True)      
     bpy.ops.object.mode_set(mode = 'OBJECT') 
+    
+#coord globales
+def coord_fix(vertex) :
+    obj = bpy.context.active_object
+    return obj.matrix_world * vertex
+
+def dist_fix(edge) :
+    pt0 = coord_fix(edge.verts[0].co)
+    pt1 = coord_fix(edge.verts[1].co)    
+    return sqrt( (pt1[0] - pt0[0]) ** 2
+                +(pt1[1] - pt0[1]) ** 2
+                +(pt1[2] - pt0[2]) ** 2
+                )        

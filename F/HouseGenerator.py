@@ -12,10 +12,15 @@ for im in IMPORTS:
     sys.path.append(dir_path+"/"+im)
 import HouseTypeA, HouseTypeB, F_Utils
 
+view3d = bpy.context.screen.areas[4]
+context_override = {'window': bpy.context.window, 
+                    'screen': bpy.context.screen, 
+                    'area' : 'TEXT_EDITOR'}
 
 #Faut jouer un peu avec les intervales 
 def generateRandomHouse() :
     type = randint(0, 1)
+    #type = 1
     if type == 0 :
             # params
             # height, width, length, roof_width
@@ -32,8 +37,8 @@ def generateRandomHouse() :
             # height, width_front, length_front, width_L, length_L, roof_height, roof_width
             height = randint(1, 3)
             width_front = randint(2, 7)
-            length_front = randint(4, 14)
-            width_L = randint(2, length_front   )
+            length_front = randint(5, 14)
+            width_L = randint(2, length_front - 1)
             length_L = width_front + randint(1, 14)
             roof_height = randint(1, 8)
             roof_width = uniform(0, 1)
@@ -43,10 +48,22 @@ def generateRandomHouse() :
     
 def main() :
     #   F_Utils.clean_Current()
+    if bpy.context.mode != 'OBJECT' :
+        bpy.ops.object.mode_set(mode = 'OBJECT') 
+    previous_context = bpy.context.area.type
+    print(previous_context)
+    bpy.context.area.type = 'VIEW_3D'
+    bpy.ops.view3d.snap_cursor_to_center()
+    bpy.context.area.type = 'TEXT_EDITOR'
+    bpy.context.area.type = previous_context
+
     h = generateRandomHouse()
-    bpy.ops.mesh.select_all(action = 'DESELECT')
+    bpy.context.object.scale[0] = 0.8
+    bpy.context.object.scale[1] = 0.8
+    bpy.context.object.scale[2] = 0.8
     bpy.ops.object.mode_set(mode = 'OBJECT') 
-    return 0
+    #bpy.ops.mesh.select_all(action = 'DESELECT')
+    return h
 
 #main()
 
@@ -60,4 +77,12 @@ def move_to(coord_x, coord_y) :
     obj.location = obj.location + Vector((coord_x, coord_y, 0))
     bpy.ops.mesh.select_all(action = 'DESELECT')
     bpy.ops.object.mode_set(mode = 'OBJECT') 
-    return 0
+    return h
+
+#main()
+#HOTFIX : bpy.ops.object.origin_set(type = 'ORIGIN_GEOMETRY')
+#ou autre car z pose pbm (pour les maisons en forme de L)
+#move_to(0, 0)
+#move_to(15, 0)
+#move_to(0, 15)
+#move_to(15, 15)
