@@ -2,9 +2,21 @@ from mathutils import Vector
 import bpy
 import random
 
+def select(obj):
+    obj.select = True
+    bpy.context.scene.objects.active = obj
+
+def remove(obj):
+    unselect()
+    select(obj)
+    bpy.ops.object.delete(use_global=False)
+
 def unselect():
     for obj in bpy.data.objects:
         obj.select = False
+
+def distance2_3():
+    pow(p2.x-p1.x,2) + pow(p2.y-p1.y,2) + pow(p2.z-p1.z,2)
 
 def distance2(p1, p2):
     return pow(p2.x-p1.x,2) + pow(p2.y-p1.y,2)
@@ -69,3 +81,13 @@ def getRandomPoint(SIZE):
     Up_Rig = Vector((+SIZE,+SIZE))
     Diag = Up_Rig - Bot_Lef
     return Bot_Lef + Vector((Diag.x*random.random(), Diag.y*random.random()))
+
+def set_parent(child_name, parent_name):
+    unselect()
+    bpy.data.objects[child_name].select = True
+    bpy.data.objects[parent_name].select = True
+    bpy.context.scene.objects.active = bpy.data.objects[parent_name]
+    bpy.ops.object.parent_set( keep_transform=True)
+    bpy.context.scene.objects.active = None
+    bpy.data.objects[parent_name].select = False
+    bpy.data.objects[child_name].select = False

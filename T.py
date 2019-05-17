@@ -5,395 +5,119 @@ import mathutils
 import F    
 import J
 import time
+import os
+import sys
+import imp
+
+dir_path = os.path.dirname(__file__)
+sys.path.append(dir_path+"/T")
+import Particules
+import Color
+imp.reload(Particules)
+imp.reload(Color)
 
 planR = 10
 density = 300
 
+#Supprime tous les objets ainsi que toutes les data (particules, textures...)
 def cleanAll():
     bpy.ops.object.mode_set(mode = 'OBJECT')
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete(use_global=False)
+    for bpy_data_iter in (bpy.data.objects,bpy.data.meshes,bpy.data.lamps,bpy.data.cameras,bpy.data.particles,bpy.data.materials):
+        for id_data in bpy_data_iter:
+            bpy_data_iter.remove(id_data)
 
-def updateMesh(me):
-    bpy.ops.object.mode_set(mode = 'OBJECT')
-    bpy.ops.object.select_all(action='SELECT')
-    bpy.ops.object.transform_apply()
-    bpy.ops.object.select_all(action='DESELECT')
-    bm.from_mesh(me) 
-
-def max (a,b,c,d) :
-    max = a
-    if b > max :
-        max = b
-    elif c > max :
-        max = c
-    elif d > max :
-        max = d
-    return max
-
-def min (a,b,c,d) :
-    min = a
-    if b < min :
-        min = b
-    elif c < min :
-        min = c
-    elif d < min :
-        min = d
-    return min
-
-def percent (max, current) :
-	percent = (current/max)*100
-	# print(int(percent) , "%")
-
-def setColorAll(obj, color):
-    bpy.ops.object.mode_set(mode = 'OBJECT')
-    if color not in obj.data.materials:
-        obj.data.materials.append(bpy.data.materials[color])
-    indexMat = obj.data.materials.find(color)
-    for p in obj.data.polygons:
-        obj.data.polygons[p.index].material_index = indexMat
-
-def cuboidV2(v1,v2,nbCuboid,width):
-	
-	direct = v1.co - v2.co
-	len = direct.length
-	mesh_data2 = bpy.data.meshes.new("Cobble")
-	for i in range(0,nbCuboid) :
-	    CobbleSize = random.uniform(width/8,width/4) #taille du pavé
-	    fact = random.uniform(0,1) #permet de placer le pavé sur l'axe principal de la route
-	    decalage = random.uniform(-width/1.5,width/1.5) #décalage du pavé par rapport a l'axe principal
-	    height = CobbleSize/2 #hauteur du pavé
-	    XCobble = v1.co[0] - direct[0]*fact #Coordonnées du pavé
-	    YCobble = v1.co[1] - direct[1]*fact
-	    
-	    #face supperieur du pavé
-	    VCobble1 = bm.verts.new((	XCobble+decalage,
-	    							YCobble+decalage,
-	    							v1.co[2]+0.2 + height))
-	    VCobble2 = bm.verts.new((	XCobble+CobbleSize+decalage,
-	    							YCobble+decalage,
-	    							v1.co[2]+0.2+ height))
-	    VCobble3 = bm.verts.new((	XCobble+CobbleSize+decalage,
-	    							YCobble+CobbleSize+decalage,
-	    							v1.co[2]+0.2+ height))
-	    VCobble4 = bm.verts.new((	XCobble+decalage,
-	    							YCobble+CobbleSize+decalage,
-	    							v1.co[2]+0.2+ height))
-	    
-	    #face inferieur du pavé
-	    BotVCobble1 = bm.verts.new((VCobble1.co[0],VCobble1.co[1],v1.co[2]+0.2))
-	    BotVCobble2 = bm.verts.new((VCobble2.co[0],VCobble2.co[1],v1.co[2]+0.2))
-	    BotVCobble3 = bm.verts.new((VCobble3.co[0],VCobble3.co[1],v1.co[2]+0.2))
-	    BotVCobble4 = bm.verts.new((VCobble4.co[0],VCobble4.co[1],v1.co[2]+0.2))
-	    
-	    #top face
-	    bm.faces.new([VCobble1, VCobble2, VCobble3, VCobble4])        
-	    #lateral faces
-	    bm.faces.new([VCobble1, VCobble2, BotVCobble2, BotVCobble1])  
-	    bm.faces.new([VCobble2, VCobble3, BotVCobble3, BotVCobble2])  
-	    bm.faces.new([VCobble3, VCobble4, BotVCobble4, BotVCobble3])  
-	    bm.faces.new([VCobble4, VCobble1, BotVCobble1, BotVCobble4])
-	    
-	obj = bpy.data.objects.new("Cobble", mesh_data2)
-	newColor((0.3,0.2,0.2),"CobbleCol")
-	Cobble = bpy.context.scene.objects[1]
-	setColorAll(Cobble, "CobbleCol")
-	bm.to_mesh(me)
-
-def newColor(col, name):
-    mat = bpy.data.materials.get(name)
-    if mat == None:
-        mat = bpy.data.materials.new(name)
-    mat.diffuse_color = col
-    
-def createRoad (edge) :
-
-    mesh_data = bpy.data.meshes.new("road")
-    bpy.ops.object.mode_set(mode = 'OBJECT')
-
-    #print(edge)
-    v0 = edge.verts[0]
-    v1 = edge.verts[1]
-    
-    direct = v0.co - v1.co
-    len = direct.length
-    #print("len" , len)
-    direct = direct.normalized()
-    direct.resize_2d()
-    ortho = direct.orthogonal()
-    #print(ortho)
-    
-
-    width = random.uniform(len/20,len*2/20)
-    pavement = random.uniform(width/10,width/5)
-
-    vRoad1 = bm.verts.new(( v0.co[0] + ortho.x*width,   #x
-                            v0.co[1] + ortho.y*width,   #y
-                            v0.co[2] + 0.2))            #z
-    vRoad2 = bm.verts.new(( v1.co[0] + ortho.x*width,   
-                            v1.co[1] + ortho.y*width, 
-                            v0.co[2] + 0.2))
-    vRoad3 = bm.verts.new(( v1.co[0] - ortho.x*width,
-                            v1.co[1] - ortho.y*width, 
-                            v0.co[2] + 0.2))
-    vRoad4 = bm.verts.new(( v0.co[0] - ortho.x*width,
-                            v0.co[1] - ortho.y*width, 
-                            v0.co[2] + 0.2))
-    
-    #upper pavement face
-    vRoad5 = bm.verts.new(( v0.co[0] + ortho.x*width + pavement - direct[0]*width*1.5,
-                            v0.co[1] + ortho.y*width + pavement - direct[1]*width*1.5,
-                            v0.co[2] + 0.25))
-    vRoad6 = bm.verts.new(( v1.co[0] + ortho.x*width + pavement + direct[0]*width*1.5,
-                            v1.co[1] + ortho.y*width + pavement + direct[1]*width*1.5, 
-                            v0.co[2] + 0.25))
-    vRoad7 = bm.verts.new(( v1.co[0] + ortho.x*width + direct[0]*width*1.5,
-                            v1.co[1] + ortho.y*width + direct[1]*width*1.5, 
-                            v0.co[2] + 0.25))
-    vRoad8 = bm.verts.new(( v0.co[0] + ortho.x*width - direct[0]*width*1.5,
-                            v0.co[1] + ortho.y*width - direct[1]*width*1.5, 
-                            v0.co[2] + 0.25)) 
-       
-    #upper pavement face
-    vRoad9 = bm.verts.new(( v0.co[0] - ortho.x*width - direct[0]*width*1.5,
-                            v0.co[1] - ortho.y*width - direct[1]*width*1.5, 
-                            v0.co[2] + 0.25))
-    vRoad10 = bm.verts.new((v1.co[0] - ortho.x*width + direct[0]*width*1.5,
-                            v1.co[1] - ortho.y*width + direct[1]*width*1.5, 
-                            v0.co[2] + 0.25))
-    vRoad11 = bm.verts.new((v1.co[0] - ortho.x*width - pavement + direct[0]*width*1.5,
-                            v1.co[1] - ortho.y*width - pavement + direct[1]*width*1.5, 
-                            v0.co[2] + 0.25))
-    vRoad12 = bm.verts.new((v0.co[0] - ortho.x*width - pavement - direct[0]*width*1.5,
-                            v0.co[1] - ortho.y*width - pavement - direct[1]*width*1.5, 
-                            v0.co[2] + 0.25))
-    
-    #side pav face
-    vRoad5low = bm.verts.new((  v0.co[0] + ortho.x*width + pavement - direct[0]*width,
-                                v0.co[1] + ortho.y*width + pavement - direct[1]*width, 
-                                v0.co[2]+ 0.2))
-    vRoad6low = bm.verts.new((  v1.co[0] + ortho.x*width + pavement + direct[0]*width,
-                                v1.co[1] + ortho.y*width + pavement + direct[1]*width, 
-                                v0.co[2]+ 0.2))
-    vRoad7low = bm.verts.new((  v1.co[0] + ortho.x*width + direct[0]*width,
-                                v1.co[1] + ortho.y*width + direct[1]*width, 
-                                v0.co[2]+ 0.2))
-    vRoad8low = bm.verts.new((  v0.co[0] + ortho.x*width - direct[0]*width,
-                                v0.co[1] + ortho.y*width - direct[1]*width, 
-                                v0.co[2]+ 0.2)) 
-    
-    
-    #side pav face
-    vRoad9low = bm.verts.new(( v0.co[0] - ortho.x*width - direct[0]*width,
-                            v0.co[1] - ortho.y*width - direct[1]*width, 
-                            v0.co[2] + 0.20))
-    vRoad10low = bm.verts.new((v1.co[0] - ortho.x*width + direct[0]*width,
-                            v1.co[1] - ortho.y*width + direct[1]*width, 
-                            v0.co[2] + 0.20))
-    vRoad11low = bm.verts.new((v1.co[0] - ortho.x*width - pavement + direct[0]*width,
-                            v1.co[1] - ortho.y*width - pavement + direct[1]*width, 
-                            v0.co[2] + 0.20))
-    vRoad12low = bm.verts.new((v0.co[0] - ortho.x*width - pavement - direct[0]*width,
-                            v0.co[1] - ortho.y*width - pavement - direct[1]*width, 
-                            v0.co[2] + 0.20))
-    
-    
-    cuboidV2(v0,v1,random.randint(int(len*2),int(len*4)),width)
-    bm.faces.new([vRoad1, vRoad2, vRoad3, vRoad4])
-    
-    #pavement
-    if len > 1:
-        
-        bm.faces.new([vRoad5, vRoad6, vRoad7, vRoad8])
-        bm.faces.new([vRoad9, vRoad10, vRoad11, vRoad12])
-        bm.faces.new([vRoad8low, vRoad7low, vRoad7, vRoad8])
-        bm.faces.new([vRoad10low, vRoad9low, vRoad9, vRoad10])
-        
-        bm.faces.new([vRoad5, vRoad6, vRoad6low, vRoad5low])
-        bm.faces.new([vRoad11, vRoad12, vRoad12low, vRoad11low])
-        
-        bm.faces.new([vRoad6, vRoad7, vRoad7low, vRoad6low])
-        bm.faces.new([vRoad5, vRoad8, vRoad8low, vRoad5low])
-        bm.faces.new([vRoad10, vRoad11, vRoad11low, vRoad10low])
-        bm.faces.new([vRoad9, vRoad12, vRoad12low, vRoad9low])
-    # Save et fermeture du bmesh
-    
-    obj = bpy.data.objects.new("My_Object", mesh_data)
-    newColor((0.5,0.4,0.4),"roadCol")
-    monObj = bpy.context.scene.objects[0]
-    setColorAll(monObj, "roadCol")
-    
-# def createRock() :
-# 	X = random.uniform(-planR,planR)
-# 	Y = random.uniform(-planR,planR)
-# 	RockRadius = random.uniform(0,0.1)
-# 	bpy.ops.mesh.primitive_cube_add(radius=RockRadius, location=(X, Y, 0))
-# 	bpy.ops.object.modifier_add(type='SUBSURF')
-# 	print("test")
-
-def createRock() : 
-	for i in range(0,10) :
-		bpy.ops.object.mode_set(mode='OBJECT')
-		bpy.ops.object.select_all(action='DESELECT')
-		X = random.uniform(-planR,planR)
-		Y = random.uniform(-planR,planR)
-		RockRadius = 0.1
-		bpy.ops.mesh.primitive_cube_add(radius=RockRadius, location=(X, Y, -0.5))
-		bpy.ops.object.modifier_add(type='SUBSURF')
-		bpy.ops.object.mode_set(mode='EDIT')
-		bpy.ops.mesh.subdivide()
-		bpy.ops.transform.vertex_random(offset=0.08)
-	bpy.ops.object.mode_set(mode='OBJECT')
-	bpy.ops.object.select_pattern(pattern="Cube*")
-	bpy.ops.group.create()
-
-
-def createParticules () :
-	createRock()
-
-	bpy.ops.object.mode_set(mode='OBJECT')
-	bpy.ops.object.select_all(action='DESELECT')
-	bpy.context.scene.objects["Plane"].select = True
-	bpy.context.scene.objects.active = bpy.context.scene.objects["Plane"]
-
-	bpy.ops.object.particle_system_remove()
-	bpy.ops.object.particle_system_add()
-	lastPart = len(bpy.data.particles) -1
-	bpy.data.particles[lastPart].type = 'HAIR'
-	bpy.data.particles[lastPart].render_type = 'GROUP'
-	groupLen = len(bpy.data.groups) -1
-
-	bpy.data.particles[lastPart].dupli_group = bpy.data.groups[groupLen]
-	bpy.data.particles[lastPart].use_advanced_hair = True
-	bpy.data.particles[lastPart].use_rotations = True
-	bpy.data.particles[lastPart].phase_factor = 0.5
-	bpy.data.particles[lastPart].phase_factor_random = 2
-
-	bpy.data.particles[lastPart].particle_size = 0.15
-	bpy.data.particles[lastPart].count = 1000
-	bpy.data.particles[lastPart].hair_length = 2.5
-	bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
-
-
-
-
-def ColorUnderRoad () :
-	newColor((0.9,0.6,0.3),"UnderRoad")
-	monObj = bpy.context.scene.objects["Plane"]
-	setColorAll(monObj, "UnderRoad")
-
-cleanAll()
-start2 = time.time()
-J.execute()
-
-faces = []
-for CurObj in bpy.context.scene.objects :
-	CurObj.select = True
-	bpy.context.scene.objects.active = CurObj
-	me = bpy.context.object.data
-	bpy.ops.object.duplicate()
-	for obj in bpy.context.selected_objects:
-		obj.name = "Pavement"
-	bpy.ops.transform.resize(value=(1.1, 1.1, 1.1))
-
-	bpy.ops.object.mode_set(mode = 'EDIT')
-
+#permet d'obtenir seulement le cadre (les edges) d'une cellule selectionnée
+def deleteCell () :
 	bpy.ops.mesh.delete(type='ONLY_FACE')
 	bpy.ops.mesh.select_mode(type = 'EDGE')
 	bpy.ops.mesh.select_all(action='SELECT')
-	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
-	bpy.ops.transform.resize(value=(0.9, 0.9, 0.9))
-	faces.append([e for e in bpy.context.active_object.data.edges if e.select])
 
+#fonction qui construit les trottoirs a partir du cadre (edges) d'une cellules de voronoi prealablement selectionnée
+def makePavement () :
+	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
+	bpy.ops.transform.resize(value=(0.95, 0.95, 0.95))
 	bpy.ops.mesh.select_all(action='SELECT')
 	bpy.ops.mesh.extrude_region_move(
-		TRANSFORM_OT_translate={"value":(0, 0, 0.05) })
+		TRANSFORM_OT_translate={"value":(0, 0, 0.02) })
 
-	bpy.ops.object.mode_set(mode='OBJECT')
-
-	bpy.ops.object.select_all(action='DESELECT')
-
-bpy.ops.mesh.primitive_plane_add(radius=planR, location=(0, 0, 0))
-ColorUnderRoad()
-for edges in faces :
-	for edge in edges :
-		for vert in edge.vertices :
-			print ("id : ",vert)
-	print()
-
-createParticules()
-
-# 	bpy.ops.mesh.inset(
-# 		use_boundary=True, 
-# 		thickness=0.2,
-# 		use_even_offset = True)
-# 	bpy.ops.mesh.select_all(action='INVERT')
-# 	# bpy.ops.mesh.select_face_by_sides()
-# 	bpy.ops.object.mode_set(mode = 'OBJECT')
-# 	CurObj.select = False
-
-# bpy.ops.mesh.primitive_plane_add(radius=10,location=(0, 0, -0.001))
+#Chance le nom des objets selectionnée en "name"
+def renameObject(name) :
+	for obj in bpy.context.selected_objects:
+		obj.name = name
 
 
+"""MAIN"""
 
+def execute() :
+	cleanAll()
+	start2 = time.time()
+	routes, cells = J.execute()
 
+	faces = []
+	#Parcours de toutes les cellules de voronoi
+	for Cell in cells :
+		#Selection de la cellule courrante + faire en sorte que cette cellule soit l'objet actif
+		Cell.select = True
+		bpy.context.scene.objects.active = Cell
+		me = bpy.context.object.data
 
+		#Duplication de la cellule courante qui permet ensuite de créer un trottoir
+		bpy.ops.object.duplicate()
+		renameObject("Pavement")
+		bpy.ops.transform.resize(value=(1.05, 1.05, 1.05))
+		bpy.ops.object.mode_set(mode = 'EDIT')
+		deleteCell()
+		makePavement()
 
+		bpy.ops.object.mode_set(mode='OBJECT')
+		bpy.ops.object.select_all(action='DESELECT')
+	#Ajout d'un plan pour représenter la route
+	bpy.ops.mesh.primitive_plane_add(radius=planR, location=(0, 0, -0.003))
 
+	#Coloration de la route
+	Color.ColorUnderRoad()
+	#Creations de pierres sur la route
+	Particules.createParticulesRock()
+	#Coloration des cellules de Voronoi
+	Color.ColorCells()
+	#Creation des buissons sur les cellules de Voronoi (duplication de chaque cellules: voir fonction dans /T/Particules )
+	Particules.createParticulesBush ()
 
+	#Changement render mode
+	bpy.context.scene.render.engine = 'CYCLES'
+	#Ajout d'une lampe
+	bpy.ops.object.lamp_add(type='AREA', view_align=False, location=(0, 0, 4))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	#CurObj.select = False
-# end2 = time.time()
-# start = time.time()
-
-# C = bpy.context
-# scene = C.scene
-# bpy.data.objects['Test'].select=True
-# scene.objects.active = bpy.data.objects['Test']
-# #bpy.ops.mesh.primitive_grid_add(radius=10, view_align=False, enter_editmode=False, location=(0,0,0), layers=(True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))
-
-# me = bpy.context.object.data
-
-# bm = bmesh.new()   
-# bm.from_mesh(me)   
+	#Redimension de l'ensemble de la scene 
+	bpy.ops.object.select_all(action='SELECT')
+	bpy.ops.transform.resize(value=(3, 3, 3))
 
 
 
-# nbEdges = len(bm.edges) 
-# print(nbEdges)
-# for index in range(0,nbEdges) :
-#     bm.verts.ensure_lookup_table()
-#     bm.faces.ensure_lookup_table()
-#     bm.edges.ensure_lookup_table()
-#     #print(index)
-#     createRoad(bm.edges[index])
-#     percent(nbEdges,index)
-# bm.to_mesh(me)
-# bm.free()
-# #print()
-# end = time.time()
-# print("nombre edges : ", nbEdges)
-# print("time LSystem: ",end2 - start2)
-# print("time route: ",end - start)
-# bpy.ops.object.editmode_toggle()
-# bpy.ops.mesh.delete(type='VERT')
-# bpy.ops.object.editmode_toggle()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
