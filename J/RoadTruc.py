@@ -9,7 +9,7 @@ from pathlib import Path
 
 import os
 #SCALE = 0.025
-SCALE = 0.2
+SCALE = 0.05
 #Deplacement maximal pour 1 frames
 VITESSE_DEPLACEMENT = 0.04
 
@@ -25,7 +25,8 @@ def spawn_trafic_entity():
     #bpy.ops.mesh.primitive_cube_add(radius=SCALE)
     imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/../charette.obj"))
     entity = bpy.context.selected_objects[0]
-    entity.scale *= SCALE 
+    entity.scale *= SCALE
+    entity.name = "Charette" 
     #entity = bpy.context.scene.objects.active
     bpy.context.scene.objects.active = None
     return entity
@@ -101,9 +102,9 @@ def execute(road):
                 rot += math.pi if vec.x < 0 else 0
             else:
                 if vec.x != 0:
-                    rot = vec.y * math.pi/2
+                    rot = vec.y * math.pi/2 
                 elif vec.y !=0:
-                    rot = vec.x * math.pi
+                    rot = vec.x * math.pi 
             new_cube.append([road.matrix_world * cu[0].co, (rot), cu[1]])
         cu = cube[len(cube)-1]
         new_cube.append([cu[0].co])
@@ -118,18 +119,20 @@ def execute(road):
     for i in range(len(CUBAS)):
         cube = CUBAS[i]
         print("LASTCUBE : "  + str(cube[len(cube)-1]))
+        entity = entities[i]
         for j in range(len(cube)-1):
-            entity = entities[i]
             entity.location = cube[j][0]
-            entity.rotation_euler = Euler((0,0,cube[j][1]))
+            #entity.rotation_euler = Euler((0,0,cube[j][1]))
+            entity.rotation_euler.z = cube[j][1]
             entity.keyframe_insert(data_path="location", frame=cube[j][2])
-            entity.keyframe_insert(data_path="rotation_euler", frame=cube[j][2]+1)
+            entity.keyframe_insert(data_path="rotation_euler", frame=cube[j][2]+2)
             #print(str(entity) + " " + str(cube[j]))
             if(cube[j][2] > 0):
-                entity.rotation_euler = Euler((0,0,cube[j-1][1]))
-                entity.keyframe_insert(data_path="rotation_euler", frame=cube[j][2]-1)
+                entity.rotation_euler.z = cube[j-1][1]
+                entity.keyframe_insert(data_path="rotation_euler", frame=cube[j][2]-5)
                 entity.keyframe_insert(data_path="location", frame=(cube[j][2]-1))
-        #entity.location = cube[len(cube)-1][0]
+        entity.location = cube[len(cube)-1][0]
+        entity.keyframe_insert(data_path="location", frame=(cube[j][2]))
         print(cube[len(cube)-1] )
 
 

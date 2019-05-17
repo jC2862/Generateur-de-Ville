@@ -53,14 +53,14 @@ def renameObject(name) :
 def execute() :
 	cleanAll()
 	start2 = time.time()
-	cells = J.execute()
+	routes, cells = J.execute()
 
 	faces = []
 	#Parcours de toutes les cellules de voronoi
 	for Cell in cells :
 		#Selection de la cellule courrante + faire en sorte que cette cellule soit l'objet actif
-		CurObj.select = True
-		bpy.context.scene.objects.active = CurObj
+		Cell.select = True
+		bpy.context.scene.objects.active = Cell
 		me = bpy.context.object.data
 
 		#Duplication de la cellule courante qui permet ensuite de créer un trottoir
