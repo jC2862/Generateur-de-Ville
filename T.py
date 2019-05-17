@@ -50,48 +50,49 @@ def renameObject(name) :
 
 """MAIN"""
 
-cleanAll()
-start2 = time.time()
-J.execute()
+def execute() :
+	cleanAll()
+	start2 = time.time()
+	cells = J.execute()
 
-faces = []
-#Parcours de toutes les cellules de voronoi
-for CurObj in bpy.context.scene.objects :
-	#Selection de la cellule courrante + faire en sorte que cette cellule soit l'objet actif
-	CurObj.select = True
-	bpy.context.scene.objects.active = CurObj
-	me = bpy.context.object.data
+	faces = []
+	#Parcours de toutes les cellules de voronoi
+	for Cell in cells :
+		#Selection de la cellule courrante + faire en sorte que cette cellule soit l'objet actif
+		CurObj.select = True
+		bpy.context.scene.objects.active = CurObj
+		me = bpy.context.object.data
 
-	#Duplication de la cellule courante qui permet ensuite de créer un trottoir
-	bpy.ops.object.duplicate()
-	renameObject("Pavement")
-	bpy.ops.transform.resize(value=(1.05, 1.05, 1.05))
-	bpy.ops.object.mode_set(mode = 'EDIT')
-	deleteCell()
-	makePavement()
+		#Duplication de la cellule courante qui permet ensuite de créer un trottoir
+		bpy.ops.object.duplicate()
+		renameObject("Pavement")
+		bpy.ops.transform.resize(value=(1.05, 1.05, 1.05))
+		bpy.ops.object.mode_set(mode = 'EDIT')
+		deleteCell()
+		makePavement()
 
-	bpy.ops.object.mode_set(mode='OBJECT')
-	bpy.ops.object.select_all(action='DESELECT')
-#Ajout d'un plan pour représenter la route
-bpy.ops.mesh.primitive_plane_add(radius=planR, location=(0, 0, -0.003))
+		bpy.ops.object.mode_set(mode='OBJECT')
+		bpy.ops.object.select_all(action='DESELECT')
+	#Ajout d'un plan pour représenter la route
+	bpy.ops.mesh.primitive_plane_add(radius=planR, location=(0, 0, -0.003))
 
-#Coloration de la route
-Color.ColorUnderRoad()
-#Creations de pierres sur la route
-Particules.createParticulesRock()
-#Coloration des cellules de Voronoi
-Color.ColorCells()
-#Creation des buissons sur les cellules de Voronoi (duplication de chaque cellules: voir fonction dans /T/Particules )
-Particules.createParticulesBush ()
+	#Coloration de la route
+	Color.ColorUnderRoad()
+	#Creations de pierres sur la route
+	Particules.createParticulesRock()
+	#Coloration des cellules de Voronoi
+	Color.ColorCells()
+	#Creation des buissons sur les cellules de Voronoi (duplication de chaque cellules: voir fonction dans /T/Particules )
+	Particules.createParticulesBush ()
 
-#Changement render mode
-bpy.context.scene.render.engine = 'CYCLES'
-#Ajout d'une lampe
-bpy.ops.object.lamp_add(type='AREA', view_align=False, location=(0, 0, 4))
+	#Changement render mode
+	bpy.context.scene.render.engine = 'CYCLES'
+	#Ajout d'une lampe
+	bpy.ops.object.lamp_add(type='AREA', view_align=False, location=(0, 0, 4))
 
-#Redimension de l'ensemble de la scene 
-bpy.ops.object.select_all(action='SELECT')
-bpy.ops.transform.resize(value=(3, 3, 3))
+	#Redimension de l'ensemble de la scene 
+	bpy.ops.object.select_all(action='SELECT')
+	bpy.ops.transform.resize(value=(3, 3, 3))
 
 
 

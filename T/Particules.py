@@ -68,6 +68,10 @@ def createParticulesRock () :
 	bpy.data.particles[lastPart].size_random = 0.5
 	bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
 
+def renameObject(name) :
+	for obj in bpy.context.selected_objects:
+		obj.name = name
+
 #Application des particules de buissons sur tout les objets "plane_cell" (cellules de voronoi)
 def createParticulesBush () :
 	createBush()
@@ -82,7 +86,7 @@ def createParticulesBush () :
 			bpy.context.scene.objects.active = monObj
 			bpy.ops.object.duplicate()
 			bpy.ops.transform.resize(value=(0.7, 0.7, 0.7))
-			bpy.context.selected_objects[0].name = "test"
+			bpy.context.selected_objects[0].name = "Particles_Cell"
 			area = bpy.context.object.data.polygons[0].area
 			bpy.ops.object.particle_system_add()
 			lastPart = len(bpy.data.particles) -1
@@ -97,7 +101,7 @@ def createParticulesBush () :
 			bpy.data.particles[lastPart].phase_factor_random = 2
 
 			bpy.data.particles[lastPart].particle_size = 0.05
-			bpy.data.particles[lastPart].count = area
+			bpy.data.particles[lastPart].count = area*2
 			bpy.data.particles[lastPart].hair_length = 2.5
 			bpy.data.particles[lastPart].size_random = 1
 			bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
