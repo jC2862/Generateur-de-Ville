@@ -1,6 +1,9 @@
 import bpy
 import math 
 import random
+import os
+
+dir_path = os.path.dirname(__file__)
 
 #Ajoute une couleur "color" a l'objet "obj"
 def setColorAll(obj, color):
@@ -77,7 +80,31 @@ def CreateLogGroup (x,y,z,radius) :
 		axis=(0, 0, 1), 
 		constraint_axis=(False, False, True))
 
+def spawn_tonneau_entity(Xmin,Xmax,Ymin,Ymax):
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Tonneau.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "Tonneau" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(random.uniform(Xmin,Xmax),random.uniform(Ymin,Ymax),0.5))
 
+	return entity
+
+def spawn_caisse_entity(Xmin,Xmax,Ymin,Ymax):
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Caisse.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "Caisse" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(random.uniform(Xmin,Xmax),random.uniform(Ymin,Ymax),0.5))
+
+	return entity
 
 cleanAll()
 radius = 0.2
@@ -91,30 +118,36 @@ for i in range (0,5) :
 	X = random.uniform(-5,5)
 	Y = random.uniform(-5,5)
 	CreateLogGroup(X,Y,radius,radius)
+	spawn_tonneau_entity(-X,X,-Y,Y)
+	spawn_caisse_entity(-X,X,-Y,Y)
 
 newColor((0.0870936, 0.0187833, 0),"Log")
 newColor((1, 0.510393, 0.229982),"CenterLog")
 
 #Parcours de tout les objet
 for obj in bpy.context.scene.objects :
+	monObj = obj
+	#Coloration de l'objet courant 
+	monObj.select = True
+	bpy.context.scene.objects.active = monObj
 	if "LogGroup" in obj.name :
-		monObj = obj
-		#Coloration de l'objet courant 
-		monObj.select = True
-		bpy.context.scene.objects.active = monObj
 		setColorAll(monObj, "Log")
 		bpy.ops.object.mode_set(mode = 'EDIT')
 		# bpy.ops.mesh.select_face_by_sides(number=8, type='EQUAL')
 		bpy.ops.object.material_slot_add()
+
 		mat = bpy.data.materials.get("CenterLog")
 		if mat is None:
 		    # create material
 		    mat = bpy.data.materials.new(name="Material")
 		monObj.data.materials[1] = mat
 		bpy.ops.object.material_slot_assign()
-		monObj.select = False
 		bpy.ops.object.mode_set(mode = 'OBJECT')
-
+	bpy.ops.rigidbody.object_add()
+	bpy.context.object.rigid_body.friction = 1
+	if "Plane" in obj.name:
+		bpy.context.object.rigid_body.type = 'PASSIVE'	
+	monObj.select = False
 
 
 

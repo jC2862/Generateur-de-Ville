@@ -24,7 +24,7 @@ def cleanAll():
     bpy.ops.object.mode_set(mode = 'OBJECT')
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete(use_global=False)
-    for bpy_data_iter in (bpy.data.objects,bpy.data.meshes,bpy.data.lamps,bpy.data.cameras,bpy.data.particles,bpy.data.materials):
+    for bpy_data_iter in (bpy.data.objects,bpy.data.meshes,bpy.data.lamps,bpy.data.cameras,bpy.data.particles,bpy.data.materials,bpy.data.groups):
         for id_data in bpy_data_iter:
             bpy_data_iter.remove(id_data)
 
