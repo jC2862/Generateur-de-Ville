@@ -19,5 +19,6 @@ def creer_anim(road):
     RoadTruc.execute(road)
 
 def execute():
-    #road, cellules = creer_route()
-    creer_anim(bpy.data.objects["Road"])
+    road, cellules = creer_route()
+    creer_anim(road)
+    return [road, cellules]
