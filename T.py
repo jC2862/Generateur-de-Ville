@@ -104,10 +104,14 @@ def execute() :
 	# 		for vert in obj.verts
 
 	for name in Particules.placeName :
+		area = (bpy.context.scene.objects[name].dimensions[0] 
+			+ bpy.context.scene.objects[name].dimensions[0]) / 2
+		print ("name : " + name + " area : "+ str(area))
 		largeur = random.uniform(0.4,0.7)
 		X=bpy.context.scene.objects[name].location[0]
 		Y=bpy.context.scene.objects[name].location[1]
-		StandGenerator.MakeStand (largeur*2, largeur, X, Y)
+		if area > 5 : 
+			StandGenerator.MakeStand (largeur*2, largeur, X, Y)
 
 
 

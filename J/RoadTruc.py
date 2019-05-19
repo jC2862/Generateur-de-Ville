@@ -8,10 +8,10 @@ from mathutils import Euler
 from pathlib import Path
 
 import os
-#SCALE = 0.025
-SCALE = 0.15
+SCALE = 0.07
+#SCALE = 0.15
 #Deplacement maximal pour 1 frames
-VITESSE_DEPLACEMENT = 0.04
+VITESSE_DEPLACEMENT = 0.01
 
 dir_path = os.path.dirname(__file__)
 
