@@ -8,12 +8,15 @@ import time
 import os
 import sys
 import imp
+import Test
 
 dir_path = os.path.dirname(__file__)
 sys.path.append(dir_path+"/T")
 import Particules
+import StandGenerator
 import Color
 imp.reload(Particules)
+imp.reload(StandGenerator)
 imp.reload(Color)
 
 planR = 10
@@ -52,6 +55,7 @@ def renameObject(name) :
 
 def execute() :
 	cleanAll()
+	Color.GenerateStandColors ()
 	start2 = time.time()
 	routes, cells = J.execute()
 
@@ -83,7 +87,7 @@ def execute() :
 	#Coloration des cellules de Voronoi
 	Color.ColorCells()
 	#Creation des buissons sur les cellules de Voronoi (duplication de chaque cellules: voir fonction dans /T/Particules )
-	Particules.createParticulesBush ()
+	Particules.createParticulesOnCell ()
 
 	#Changement render mode
 	bpy.context.scene.render.engine = 'CYCLES'
@@ -94,7 +98,16 @@ def execute() :
 	bpy.ops.object.select_all(action='SELECT')
 	bpy.ops.transform.resize(value=(3, 3, 3))
 
+	# for obj in bpy.context.scene.objects :
+	# 	rand = random.randint(0,1)
+	# 	if "Plane_cell" in obj.name and rand == 1:
+	# 		for vert in obj.verts
 
+	for name in Particules.placeName :
+		largeur = random.uniform(0.4,0.7)
+		X=bpy.context.scene.objects[name].location[0]
+		Y=bpy.context.scene.objects[name].location[1]
+		StandGenerator.MakeStand (largeur*2, largeur, X, Y)
 
 
 

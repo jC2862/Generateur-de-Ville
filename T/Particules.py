@@ -1,6 +1,57 @@
 import bpy
 import random
 import Color
+import os
+
+dir_path = os.path.dirname(__file__)
+
+def spawn_tonneau_entity():
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Tonneau.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "PlaceTonneau" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(0,0,-2))
+
+	return entity
+
+def spawn_caisse_entity():
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Caisse.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "PlaceCaisse" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(0,0,-2))
+
+	return entity
+
+def spawn_log_entity():
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/LogGroup1.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "PlaceLog" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(0,0,-2))
+
+	return entity
+
+def CreatePlaceGroup() :
+	bpy.ops.object.mode_set(mode='OBJECT')	
+	bpy.ops.object.select_all(action='DESELECT')
+	spawn_tonneau_entity()
+	spawn_log_entity()
+	spawn_caisse_entity()
+	bpy.ops.object.select_pattern(pattern="Place*")
+	bpy.ops.group.create(name="Place")
 
 #Création d'un groupe d'objet buisson
 def createBush() : 
@@ -71,36 +122,45 @@ def renameObject(name) :
 	for obj in bpy.context.selected_objects:
 		obj.name = name
 
-#Application des particules de buissons sur tout les objets "plane_cell" (cellules de voronoi)
-def createParticulesBush () :
-	createBush()
+def createParticulesCell(obj, name, random_size) :
+	monObj = obj
+	monObj.select = True
+	bpy.context.scene.objects.active = monObj
+	bpy.ops.object.duplicate()
+	bpy.ops.transform.resize(value=(0.7, 0.7, 0.7))
+	bpy.context.selected_objects[0].name = "Particles_Cell"
+	area = bpy.context.object.data.polygons[0].area
+	bpy.ops.object.particle_system_add()
+	lastPart = len(bpy.data.particles) -1
+	bpy.data.particles[lastPart].type = 'HAIR'
+	bpy.data.particles[lastPart].render_type = 'GROUP'
 
-	bpy.ops.object.mode_set(mode='OBJECT')
+	bpy.data.particles[lastPart].dupli_group = bpy.data.groups[name]
+	bpy.data.particles[lastPart].use_advanced_hair = True
+	bpy.data.particles[lastPart].use_rotations = True
+	bpy.data.particles[lastPart].phase_factor = 0.5
+	bpy.data.particles[lastPart].phase_factor_random = 2
+
+	bpy.data.particles[lastPart].particle_size = 0.05
+	bpy.data.particles[lastPart].count = area
+	bpy.data.particles[lastPart].hair_length = 2.5
+	bpy.data.particles[lastPart].size_random = random_size
+	bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
+	bpy.data.particles[lastPart].distribution = 'RAND'
+	bpy.ops.object.select_all(action='DESELECT')
+
+placeName = []
+#Application des particules de buissons sur tout les objets "plane_cell" (cellules de voronoi)
+def createParticulesOnCell () :
+	createBush()
+	CreatePlaceGroup()
+	# bpy.ops.object.mode_set(mode='OBJECT')
 	bpy.ops.object.select_all(action='DESELECT')
 	for obj in bpy.context.scene.objects :
-		rand = random.randint(0,1)
-		if "Plane_cell" in obj.name and rand == 1:
-			monObj = obj
-			monObj.select = True
-			bpy.context.scene.objects.active = monObj
-			bpy.ops.object.duplicate()
-			bpy.ops.transform.resize(value=(0.7, 0.7, 0.7))
-			bpy.context.selected_objects[0].name = "Particles_Cell"
-			area = bpy.context.object.data.polygons[0].area
-			bpy.ops.object.particle_system_add()
-			lastPart = len(bpy.data.particles) -1
-			bpy.data.particles[lastPart].type = 'HAIR'
-			bpy.data.particles[lastPart].render_type = 'GROUP'
-
-			bpy.data.particles[lastPart].dupli_group = bpy.data.groups["Bush"]
-			bpy.data.particles[lastPart].use_advanced_hair = True
-			bpy.data.particles[lastPart].use_rotations = True
-			bpy.data.particles[lastPart].phase_factor = 0.5
-			bpy.data.particles[lastPart].phase_factor_random = 2
-
-			bpy.data.particles[lastPart].particle_size = 0.05
-			bpy.data.particles[lastPart].count = area*2
-			bpy.data.particles[lastPart].hair_length = 2.5
-			bpy.data.particles[lastPart].size_random = 1
-			bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
-			bpy.ops.object.select_all(action='DESELECT')
+		rand = random.uniform(0,1)
+		if "Plane_cell" in obj.name :
+			if rand < 0.3:
+				createParticulesCell(obj, "Bush", 1)
+			if rand > 0.8 :
+				createParticulesCell(obj, "Place", 0)
+				placeName.append(obj.name)				
