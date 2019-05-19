@@ -10,7 +10,7 @@ def fracturing(name):
     PZ = bpy.context.scene.objects.active.particle_systems['ParticleSystem']
     PZ.seed = random.randint((-0x7fffffff - 1), 0x7fffffff)
     PA = PZ.settings
-    PA.count = 10
+    PA.count = 20
     PA.frame_end = 2
     PA.distribution = 'RAND'
     bpy.ops.object.add_fracture_cell_objects(use_layer_next=False,use_debug_redraw=False)
@@ -44,6 +44,7 @@ def extra_voronoi():
     ABC = [obj for obj in bpy.context.scene.objects if obj.name.startswith(base+"_cell")]
 
     for a in ABC:
+        Utils.unselect()
         a.select = True
         bpy.context.scene.objects.active = a
         '''''
@@ -56,6 +57,10 @@ def extra_voronoi():
         bpy.context.scene.objects.active = a
         '''
         #abpy.ops.transform.resize(value=(0.90,0.90,0.90))
+        to_fusion.append(a)
+        bpy.ops.object.duplicate_move()
+        bpy.ops.transform.resize(value=(0.82,0.82,0.82))
+        '''
         fracturing(a.name)
         Z = [obj for obj in bpy.context.scene.objects if obj.name.startswith(a.name+"_cell")]
         for z in Z:
@@ -65,6 +70,7 @@ def extra_voronoi():
             bpy.context.scene.objects.active = z
             bpy.ops.object.duplicate_move()
             bpy.ops.transform.resize(value=(0.82,0.82,0.82))
+        '''
     
     Utils.unselect()
     for o in to_fusion:
