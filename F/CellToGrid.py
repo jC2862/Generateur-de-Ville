@@ -1,8 +1,20 @@
 import bpy
 import bmesh
-from math import sqrt, atan2, acos
+from random import uniform
+from math import sqrt, atan2, pi, degrees
 from mathutils import Vector
-from numpy import dot, cross
+from numpy import dot, cross, clip, arccos
+from numpy.linalg import norm
+
+def unit_vector(vector):
+    #renvoie le vecteur unitaire
+    return vector / norm(vector)
+
+def angle_between(v1, v2):
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return arccos(clip(dot(v1_u, v2_u), -1.0, 1.0))
+
 
 #coord globales
 def coord_fix(object, vertex) :
@@ -17,25 +29,11 @@ def dist_fix(edge) :
                 +(pt1[1] - pt0[1]) ** 2
                 +(pt1[2] - pt0[2]) ** 2
                 )    
-
-#@ deprecated 
-def mend_face(face) :
-    #face impaire
-    if len(face.verts) % 2 == 0 : return
-
-    longest = face.edges[0]   
-    # on récupère la plus longue arete 
-    for edge in face.edges :
-        print("edge i : {} \ length : {}".format(edge.index, dist_fix(edge)))
-        if dist_fix(edge) > dist_fix(longest) :
-            longest = edge
-    #on divise cette arete en deux     
-    longest.select = True   
-    bpy.ops.mesh.subdivide(smoothness = 0)
     
 def sortDist(edge) :
     return dist_fix(edge)
 
+#Pas utilisé ?
 def average_length(cell) :
     sum = 0.0
     for edge in cell.edges :
@@ -62,19 +60,6 @@ def select_boundary_face(obj) :
             #face.select = True
                        
     return res 
-
-def norm(u) : 
-    return sqrt(u[0] ** 2 + u[1] ** 2 + u[2] ** 2) 
-
-#le cos devrait suffire !!!!!
-def angle_between(u, v) :
-    n_u = norm(u)
-    n_v = norm(v)
-    x = dot(u, v) / (n_u * n_v)
-    print("cos alpha : ", x)
-    vec_tmp = cross(v, u)
-    n_tmp = norm(vec_tmp)
-    return atan2(dot(cross(u, v), vec_tmp), x)    
 
 def get_center_median(object, face) :
     save = bpy.context.scene.objects.active
@@ -108,36 +93,18 @@ def get_center_edge(object, edges) :
     #print("edge : ", sum)        
     return sum / len(t_list) 
     
-
-def calc_rotation(object, border) :
-    #test = Vector(center[0], center[1] - 1, center[2])
-    # de la forme : (face index, [edges index])
-    bpy.ops.object.mode_set(mode = 'EDIT')
-    vec = Vector((0, 1, 0))
-    list = []
-    for elt in border : 
-        center_face = get_center_median(object, elt[0])
-        center_edge = get_center_edge(object, elt[1])
-        #print(center_edge)
-        target = Vector(center_edge) - Vector(center_face)
-        #vec = Vector(center_face) - Vector((0, -1, 0))
-        print("face N°{} : target  {}".format(elt[0], target))
-        list.append((elt[0], angle_between(target, vec)))
-    #
-    #target = Vector((0, 0, 0))
-    return list 
     
-def move_and_rotate(obj_name, dest, rot) :
+def move_and_rotate(object, dest, rot) :
     save = bpy.context.scene.objects.active 
     bpy.ops.mesh.select_all(action='DESELECT')   
-    obj = bpy.data.objects[obj_name] 
-    bpy.context.scene.objects.active = obj
+    bpy.context.scene.objects.active = object
     bpy.ops.object.mode_set(mode = 'OBJECT')
     bpy.context.scene.objects.active.location = dest
     bpy.context.scene.objects.active.rotation_euler = (0, 0, rot)
     bpy.context.scene.objects.active = save
     #bpy.ops.transform.rotate(value=rot, axis=(0, 0, 1), constraint_axis=(False, False, True))
   
+#########################################################################  
 def dist(pt0, pt1) :
     return sqrt( (pt1[0] - pt0[0]) ** 2 
                 +(pt1[1] - pt0[1]) ** 2
@@ -155,68 +122,43 @@ def get_bounding_box_area(obj_name) :
     l = dist(pt0, pt2)
     (l)
     area = h * l
-    return area  
+    #aire au sol
+    return area 
+ 
+######################################################################### 
    
 def scale_percentage(cell, object, face) :
     bpy.ops.object.mode_set(mode = 'EDIT')
     bound_area = get_bounding_box_area(object.name)
     
+    bpy.ops.object.mode_set(mode = 'OBJECT')
     bpy.context.scene.objects.active = cell
     bpy.ops.object.mode_set(mode = 'EDIT')
     bm = bmesh.from_edit_mesh(cell.data) 
     
     bm.faces.ensure_lookup_table()
     face_area = bm.faces[face].calc_area()
-    scale = 1/((bound_area / face_area))
-    #print("SCALEEEEEEEEEEEE : ", scale)
+    scale = sqrt((bound_area / face_area))
+    print("SCALEEEEEEEEEEEE : ", scale)
 
     bpy.ops.object.mode_set(mode = 'OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     bpy.context.scene.objects.active = object
-    object.scale[0] = scale * 10
-    object.scale[1] = scale * 10
-    object.scale[2] = scale * 10
+    print("scale of house : {} {} {}".format(object.scale[0], object.scale[1], object.scale[2]))
+    object.scale[0] = min((object.scale[0] / (scale)) * 2, 0.3) 
+    object.scale[1] = min((object.scale[1] / (scale)) * 2, 0.3)
+    object.scale[2] = min((object.scale[2] / (scale)) * 2, 0.3)
+    print("scale of house POST: {} {} {}".format(object.scale[0], object.scale[1], object.scale[2]))
     
-def fix_face(obj_cell) :
-    #travaillons sur duplica de la cellule ? <- peut-etre pas necessaire !!!
-    bpy.context.scene.objects.active = obj_cell
-    if bpy.context.mode != 'EDIT' :
-        bpy.ops.object.mode_set(mode = 'EDIT')
-    bm = bmesh.from_edit_mesh(obj_cell.data)
+    res_1, res_2, res_3 = object.dimensions
+    if object.dimensions[0] < 3 or object.dimensions[0] > 4.2 :
+            res_1 = uniform(3, 4.2)
+    if object.dimensions[1] < 3 or object.dimensions[1] > 4.2 :
+            res_2 = uniform(3, 4.2)
+    if object.dimensions[2] < 3 or object.dimensions[2] > 4:
+            res_3 = uniform(3.4, 4)
+    object.dimensions = [res_1, res_2, res_3]
         
-    if len(bm.verts) > 4 :
-        list = []
-        #les plus petites aretes sont en premier
-        for edge in bm.edges :
-            list.append(edge.index)
-        list.sort(key = sortDist)
-        
-        bpy.ops.mesh.select_all(action='DESELECT')
-        #on va merger en leur centres les aretes les plus petites afin d'obtenir un quad
-        #approximant la cellule
-       
-        stop = len(list) - 4
-        print(list[:stop])
-        bpy.ops.object.mode_set(mode = 'OBJECT')
-        for elt in list[:stop] :
-            obj_cell.data.edges[elt].select = True
-        
-        bpy.ops.object.mode_set(mode = 'EDIT')     
-        bpy.ops.mesh.merge(type='COLLAPSE')
-        
-        bm = bmesh.from_edit_mesh(obj_cell.data)
-        bm.faces.ensure_lookup_table()
-        #center = get_center_median(name, 0)
-        #print(center)
-    
-    bpy.ops.mesh.select_all(action='SELECT')    
-    bpy.ops.mesh.subdivide(number_cuts = 3)
-    
-    bpy.ops.mesh.region_to_loop()
-    #on va enregistrer les indices des aretes du bord de la cellule.
-    
-    #puis calculer la rotation
-    
 #bm = bmesh.from_edit_mesh(bpy.context.active_object.data)
 #obj = bpy.context.active_object.data
 #fix_face(obj) 
@@ -229,3 +171,125 @@ def fix_face(obj_cell) :
 #house = bpy.data.objects['House']
 #move_and_rotate(house, center_face, list[0][1])
 #scale_percentage('House', 0)
+
+class Cell_To_Grid :
+    
+    def calc_rotation(self, border) :
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        list = []
+        for elt in border : 
+            #center_face = get_center_median(self.work_area, elt[0])
+            center_edge = get_center_edge(self.work_area, elt[1])
+            
+            print("face N°{} : target  {}".format(elt[0], center_edge))
+            list.append((elt[0], self.get_angle((center_edge))))
+        #
+        #target = Vector((0, 0, 0))
+        return list 
+    
+    def get_angle(self, to) :
+        center = self.get_cell_grid_center(self.work_area)
+        local = center[0]
+        vec_0 = Vector((0, -1, 0)) - local
+        vec_1 = Vector(to) - local 
+        sign = 1
+        if vec_1[0] < vec_0[0] :
+            sign = -1 
+        
+        print("VEc 1 :", vec_1)
+        print("Moi :", angle_between(vec_0, vec_1))
+        print("angle() :",vec_0.angle(vec_1))
+        print("HOPE : ", (sign * angle_between(vec_0, vec_1) * 180/pi ))
+        return sign * angle_between(vec_0, vec_1)
+            
+    def make_grid(self) :
+        print("Start")
+        bpy.context.scene.objects.active = self.work_area
+        if bpy.context.mode != 'EDIT' :
+            bpy.ops.object.mode_set(mode = 'EDIT')
+        bm = bmesh.from_edit_mesh(self.work_area.data)
+        if len(bm.verts) > 4 :
+            list = []
+            #les plus petites aretes sont en premier
+            for edge in bm.edges :
+                list.append(edge.index)
+            list.sort(key = sortDist)
+            
+            bpy.ops.mesh.select_all(action='DESELECT')
+            #on va merger en leur centres les aretes les plus petites afin d'obtenir un quad
+            #approximant la cellule
+           
+            stop = len(list) - 4
+            print(list[:stop])
+            bpy.ops.object.mode_set(mode = 'OBJECT')
+            for elt in list[:stop] :
+                self.work_area.data.edges[elt].select = True
+            
+            bpy.ops.object.mode_set(mode = 'EDIT')     
+            bpy.ops.mesh.merge(type='COLLAPSE')
+            
+            bm = bmesh.from_edit_mesh(self.work_area.data)
+            bm.faces.ensure_lookup_table()
+        bpy.ops.mesh.select_all(action='SELECT')    
+        bpy.ops.mesh.subdivide(number_cuts = self.sub)
+        bpy.ops.mesh.region_to_loop()
+        print("end")
+    
+    def get_area(self, object) :
+        ex_active = bpy.context.scene.objects.active
+        ex_active.select = False
+        bpy.ops.object.mode_set(mode='OBJECT')
+        #nouvel objet actif :
+        bpy.context.scene.objects.active = object
+        #on veut juste calculer l'aire de cet objet
+        mode = object.mode
+        bpy.ops.object.mode_set(mode='EDIT')
+        print(object.mode)
+        bm = bmesh.from_edit_mesh(bpy.context.scene.objects.active.data)
+        
+        sum = 0.0
+        for face in bm.faces :
+            sum = sum + face.calc_area()
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.context.scene.objects.active = ex_active    
+        return sum
+    
+    #object est soit self.base_obj soit self.work_area
+    def get_cell_grid_center(self, object) :
+        object.update_from_editmode()
+        selection = [vert.co for vert in object.data.vertices]
+        
+        pivot = sum(selection, Vector()) / len(selection)
+
+        print("Local:", pivot)
+        print("Global:", object.matrix_world * pivot)
+        return (pivot, object.matrix_world * pivot)
+        
+    
+    def __init__(self, obj, nb_subdivision) :
+        self.sub = nb_subdivision
+        bpy.ops.object.mode_set(mode = 'OBJECT')    
+        #on va bosser sur une copie de l'obj afin de conserver la cellule de base
+        self.base_obj = obj
+        self.work_area = self.base_obj.copy()
+        self.work_area.data = self.base_obj.data.copy()
+        self.work_area.animation_data_clear()
+        bpy.context.scene.objects.link(self.work_area)
+        
+#obj = bpy.data.objects['Plane_cell.001_cell.017']        
+#test = Cell_To_Grid(obj, nb_subdivision=2)        
+#test.get_cell_grid_center(test.base_obj)
+#test.make_grid()
+#res = test.get_angle(Vector((-0.11938, -1.85625, 0.0)))
+#res = test.get_angle(Vector((-1.26492, -0.29420, 0.0)))
+#res = test.get_angle(Vector((-0.82042, 1.69109, 0.0)))
+#res = test.get_angle(Vector((0.76918, 2.16895, 0.0)))
+#res = test.get_angle(Vector((1.43554, -1.70960, 0.0)))
+#print("base obj area :", test.get_area(test.base_obj))
+#print("work area area",test.get_area(test.work_area))
+#house = bpy.data.objects['64']      
+#house.rotation_euler[2] = res
+	
+#cell = bpy.data.objects['Plane_cell.001_cell.001']        
+#scale_percentage(cell, house, 1)

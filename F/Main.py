@@ -13,46 +13,45 @@ import HouseGenerator, CellToGrid
 
 class Main :
     
-    def __init__(self, cell) :
+    def __init__(self, cell, nb) :
         print(cell)
         #h = HouseGenerator.main() 
         #tranforme une cellule en pseudo-grille (nombre de découpe = 3 pour l instant)
-        CellToGrid.fix_face(cell)  
+        #CellToGrid.fix_face(cell.data)  
+        grid = CellToGrid.Cell_To_Grid(cell, nb_subdivision = nb)
+        grid.make_grid()
         
+        print(grid.work_area)
         #on selectionne le contour de la grille (contient la face bordure et la ou les aretes de la bordure)
         #(indice face, indice(s) aretes)
-        border = CellToGrid.select_boundary_face(cell)
-        #print(border)
+        border = CellToGrid.select_boundary_face(grid.work_area)
         #on calcule la rotation de la maison (indice face, angle)
-        list = CellToGrid.calc_rotation(cell, border)
-        print("###############")
-        #pour chq couple de la bordure
-        for elt in list :
-            print(elt)
-            #bpy.ops.object.mode_set(mode = 'OBJECT')
-            print("{} : {}".format(elt[0], elt[1]))
-            #on creee une maison
+        rotation = grid.calc_rotation(border)
+        print(rotation)
+        skip = 0
+        for elt in rotation :
+            if skip % 2 == 0 :
+                skip = skip + 1
+                continue
+            skip = skip + 1
             h = HouseGenerator.main() 
-            #on calcule la position future de la maison
-            pos = CellToGrid.coord_fix(cell ,CellToGrid.get_center_median(cell, elt[0]))
+            pos = CellToGrid.coord_fix(cell ,CellToGrid.get_center_median(grid.work_area, elt[0]))
             #print(pos)
             #enfin on deplace et rotate la maison
-            CellToGrid.move_and_rotate(h.name, pos, elt[1])
-            CellToGrid.scale_percentage(cell, bpy.data.objects[h.name], elt[0])
-        
-        
+            CellToGrid.move_and_rotate(bpy.data.objects[h.name], pos, elt[1])
+            CellToGrid.scale_percentage(grid.work_area, bpy.data.objects[h.name], elt[0])
         
         
         
 def main() :
     work_with = [obj for obj in bpy.context.scene.objects if obj.name.startswith("Plane_cell")]
-    list = sample(work_with, 20)        
+    sp = sample(work_with, 1)        
     
-    for cell in list :
-        Main(cell)
+    for cell in sp :
+        Main(cell, nb = 2)
         
 #tmp main to test
 #cell = bpy.data.objects['Plane_cell.001_cell.001']
 #Main(cell)
 
-#main()
+main()
