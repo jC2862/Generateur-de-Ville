@@ -10,7 +10,7 @@ def fracturing(name):
     PZ = bpy.context.scene.objects.active.particle_systems['ParticleSystem']
     PZ.seed = random.randint((-0x7fffffff - 1), 0x7fffffff)
     PA = PZ.settings
-    PA.count = 20
+    PA.count = 60
     PA.frame_end = 2
     PA.distribution = 'RAND'
     bpy.ops.object.add_fracture_cell_objects(use_layer_next=False,use_debug_redraw=False)

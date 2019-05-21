@@ -8,10 +8,10 @@ from mathutils import Euler
 from pathlib import Path
 
 import os
-#SCALE = 0.025
-SCALE = 0.15
+SCALE = 0.07
+#SCALE = 0.15
 #Deplacement maximal pour 1 frames
-VITESSE_DEPLACEMENT = 0.04
+VITESSE_DEPLACEMENT = 0.01
 
 dir_path = os.path.dirname(__file__)
 
@@ -74,7 +74,7 @@ def execute(road):
     bm.edges.ensure_lookup_table()
     
     nb = bpy.data.scenes['Scene'].frame_end
-    nb_cube = 10
+    nb_cube = 5
 
     cubes = [[[bm.verts[random.randint(0,len(bm.verts)-1)],0]] for i in range(nb_cube)]
     print(cubes[0][0])
@@ -89,12 +89,15 @@ def execute(road):
     print(cubes[0])
     #Conversion
     CUBAS = []
+    MP2 = math.pi*2
     for cube in cubes:
         new_cube = []
         for i in range(len(cube)-1):
+            print()
+            print(i)
             cu = cube[i]
             vec = (cube[i+1][0].co-cube[i][0].co).normalized()
-            print("VEC" + str(vec))
+            print("VEC \t" + str(vec))
             rot = 0 
             if vec.x != 0 and vec.y != 0:
                 rot = math.atan(vec.y/vec.x)
@@ -103,11 +106,23 @@ def execute(road):
                 if vec.x != 0:
                     rot = math.pi if vec.x <0 else 0
                 elif vec.y !=0:
-                    rot = vec.y * math.pi/2 
+                    rot = vec.y * math.pi
 
+            if i > 0:
+                raw_pre_rot = new_cube[len(new_cube)-1][1]
+                pre_rot = raw_pre_rot%MP2
+                nrot = rot % MP2
+                print(math.degrees(pre_rot))
+                print(math.degrees(nrot))
+                diff = -(pre_rot - nrot)
+                print(math.degrees(diff))
+                if abs(diff) > math.pi:
+                    diff = -(MP2 - abs(diff)) #* (1 if diff<0 else -1)
+                print(math.degrees(diff))
+                print(math.degrees((raw_pre_rot + diff)%MP2))
+                print((raw_pre_rot + diff)%MP2)
+                rot = raw_pre_rot + diff
             #rot = -rot if vec.x < 0 else +rot 
-            pre_rot = new_cube[len(new_cube)-1][1] if i>0 else rot
-
             #rot = rot if rot > 0 else math.pi*2 + rot
             new_cube.append([road.matrix_world * cu[0].co, (rot), cu[1]])
         cu = cube[len(cube)-1]
@@ -115,10 +130,10 @@ def execute(road):
         CUBAS.append(new_cube)
     #Keycap
     bpy.ops.object.mode_set(mode='OBJECT')
-    print(len(CUBAS))
-    print(CUBAS[0])
+    #print(len(CUBAS))
+    #print(CUBAS[0])
 
-    print(CUBAS[0][len(CUBAS[0])-1])
+    #print(CUBAS[0][len(CUBAS[0])-1])
 
     entities = spawn(nb_cube)
     for i in range(len(CUBAS)):
@@ -140,7 +155,6 @@ def execute(road):
         entity.keyframe_insert(data_path="location", frame=(cube[len(cube)-1][1]))
         print("NEWFGHJKLM - ---------------------------------------------" + str(cube[len(cube)-1]))
         print(cube[len(cube)-1] )
-
 
 
 
