@@ -29,14 +29,9 @@ def execute():
     terrain = Terrain.generation(250, 100)
     center = CityBorder.findPlaceIn(terrain)
     road, cellules = creer_route()
-    
-    bpy.ops.object.select_all(action='SELECT')
-    terrain.select = False
-    bpy.ops.transform.translate(value=(center.x, center.y, 0))
-    bpy.ops.object.select_all(action='DESELECT')
-    
     creer_anim(road)
     
+    bpy.ops.object.select_all(action='DESELECT')
     terrain.select = True
-    bpy.ops.transform.translate(value=(0, 0, center.z-0.01))
+    bpy.ops.transform.translate(value=(-center.x, -center.y, center.z-0.01))
     return [road, cellules]
