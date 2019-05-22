@@ -4,12 +4,12 @@ import sys
 import os
 from math import sqrt
 
-IMPORTS = ["F\_Utils.py", "WindowGenerator.py"] 
+IMPORTS = ["F\_Utils.py", "WindowGenerator.py", "Material.py"] 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 for im in IMPORTS:
     print(dir_path+"/"+im)
     sys.path.append(dir_path+"/"+im)
-import F_Utils, WindowGenerator
+import F_Utils, WindowGenerator, Material
 
 region, rv3d, v3d, area = F_Utils.view3d_find(True)
 
@@ -93,6 +93,11 @@ class House:
         #on sauvegarde le nom de la maison pour identifier le mesh qui lui correspond !
         self.obj_name = bpy.context.object.data.name
         self.name = bpy.context.object.name
+        
+        obj = bpy.context.scene.objects.active
+        Material.affect_mat(obj, self.name + "_Wall_mat", 'Wall')
+        Material.affect_mat(obj, self.name + "_Roof_mat", 'Roof')
+        bpy.context.object.active_material_index = 0
         #...que l'on va modifier
         bpy.ops.object.editmode_toggle()
         #on scale pour donner une largeur, longeur et hauteur a notre maison
@@ -162,7 +167,8 @@ class House:
         bpy.ops.transform.translate(value = (0, 0, self.roof_height), constraint_axis=(False, False, True), constraint_orientation='GLOBAL')       
         bpy.context.object.update_from_editmode() # Loads edit-mode data into object data
         bpy.ops.object.mode_set(mode = 'EDIT')
-        #par construction, les sommets 12 et 14 sont les sommets du bas de la maison, on fait du centre median de ces sommets le centre de l'objet           
+        #par construction, les sommets 12 et 14 sont les sommets du bas de la maison, on fait du centre median de ces sommets le centre de l'objet
+        bpy.context.object.active_material_index = 1          
         return len(mesh.vertices)
     
     def init_roof(self) :
@@ -218,6 +224,7 @@ class House:
         #2.| scaler sur l'axe y
         bpy.ops.mesh.select_all(action = 'DESELECT')
         bpy.ops.mesh.select_linked_pick(deselect=False, delimit=set(), index = self.architecture['walls'][1] + 1)
+        bpy.ops.object.material_slot_assign()
         #on scale pour creer une avancee a notre toiture
         bpy.ops.transform.resize(value = (0, 1.1, 0), constraint_axis=(False, True, False))
                       

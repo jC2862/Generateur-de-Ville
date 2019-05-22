@@ -166,6 +166,26 @@ def scale_percentage(cell, object, face) :
 #list = calc_rotation(res)
 #print(list)
 
+
+def get_area(object) :
+    ex_active = bpy.context.scene.objects.active
+    ex_active.select = False
+    bpy.ops.object.mode_set(mode='OBJECT')
+    #nouvel objet actif :
+    bpy.context.scene.objects.active = object
+    #on veut juste calculer l'aire de cet objet
+    mode = object.mode
+    bpy.ops.object.mode_set(mode='EDIT')
+    print(object.mode)
+    bm = bmesh.from_edit_mesh(bpy.context.scene.objects.active.data)
+    
+    sum = 0.0
+    for face in bm.faces :
+        sum = sum + face.calc_area()
+    
+    bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.context.scene.objects.active = ex_active    
+    return sum
 #on passe en global parce que c est cool le global
 #center_face = coord_fix(get_center_median(list[0][0]))
 #house = bpy.data.objects['House']
@@ -208,6 +228,8 @@ class Cell_To_Grid :
         if bpy.context.mode != 'EDIT' :
             bpy.ops.object.mode_set(mode = 'EDIT')
         bm = bmesh.from_edit_mesh(self.work_area.data)
+        if len(bm.verts) == 4 and self.sub == 0:
+            return 
         if len(bm.verts) > 4 :
             list = []
             #les plus petites aretes sont en premier
@@ -274,6 +296,7 @@ class Cell_To_Grid :
         self.base_obj = obj
         self.work_area = self.base_obj.copy()
         self.work_area.data = self.base_obj.data.copy()
+        self.work_area.name = 'Grid'
         self.work_area.animation_data_clear()
         bpy.context.scene.objects.link(self.work_area)
         

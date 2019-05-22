@@ -3,12 +3,12 @@ import bmesh
 import sys
 import os
 
-IMPORTS = ["F\_Utils.py", "WindowGenerator.py"] 
+IMPORTS = ["F\_Utils.py", "WindowGenerator.py", "Materil.py"] 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 for im in IMPORTS:
     print(dir_path+"/"+im)
     sys.path.append(dir_path+"/"+im)
-import F_Utils, WindowGenerator
+import F_Utils, WindowGenerator, Material
 
 region, rv3d, v3d, area = F_Utils.view3d_find(True)
 
@@ -90,6 +90,10 @@ class House :
         #on sauvegarde le nom de la maison pour identifier le mesh qui lui correspond !
         self.obj_name = bpy.context.object.data.name
         self.name = bpy.context.object.name
+        obj = bpy.context.scene.objects.active
+        Material.affect_mat(obj, self.name + "_Wall_mat", 'Wall')
+        Material.affect_mat(obj, self.name + "_Roof_mat", 'Roof')
+        bpy.context.object.active_material_index = 0
          #...que l'on va modifier
         bpy.ops.object.editmode_toggle()
         #on calcule l'avancée 
@@ -202,6 +206,7 @@ class House :
         bpy.ops.transform.translate(value = (0, 0, self.roof_height), constraint_axis=(False, False, True), constraint_orientation='GLOBAL')       
         bpy.context.object.update_from_editmode() # Loads edit-mode data into object data
         F_Utils.deselect_All()
+        bpy.context.object.active_material_index = 1
         return len(mesh.vertices)
         
     def init_roof(self) :
@@ -211,7 +216,8 @@ class House :
         #on selectionne les faces qui pointent le plus vers le haut (notre toiture)
         for face in bm.faces:
             if face.normal[2] > 0:
-                face.select_set(True)         
+                face.select_set(True)  
+        bpy.ops.object.material_slot_assign()      
         bpy.ops.mesh.duplicate_move()
         bpy.ops.mesh.extrude_region_move(
             MESH_OT_extrude_region = {

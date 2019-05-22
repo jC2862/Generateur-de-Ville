@@ -2,7 +2,7 @@ import bpy
 import bmesh
 import os
 import sys
-from random import sample
+from random import sample, randint, uniform
 
 IMPORTS = ["HouseGenerator.py", "CellToGrid.py"] 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -30,10 +30,10 @@ class Main :
         print(rotation)
         skip = 0
         for elt in rotation :
-            if skip % 2 == 0 :
-                skip = skip + 1
-                continue
-            skip = skip + 1
+            if uniform(0, 1) > 0.8 :
+                break
+            #    continue
+            #skip = skip + 1
             h = HouseGenerator.main() 
             pos = CellToGrid.coord_fix(cell ,CellToGrid.get_center_median(grid.work_area, elt[0]))
             #print(pos)
@@ -44,11 +44,23 @@ class Main :
         
         
 def main() :
-    work_with = [obj for obj in bpy.context.scene.objects if obj.name.startswith("Plane_cell")]
-    sp = sample(work_with, 1)        
+    work_with = [obj for obj in bpy.context.scene.objects if obj.name.startswith("Plane_cell") and obj.data.name.startswith("Plane_cell")]
+    avg = 0.0
+    for obj in work_with :
+        avg = avg + CellToGrid.get_area(obj)
+    mean = avg / len(work_with)
+
+    select = []
+    for obj in work_with :
+        if  CellToGrid.get_area(obj) >= mean :
+            select.append(obj)
+    rd = randint(0, len(select)) 
+    print(rd)
+    print(len(select))
+    sp = sample(select, rd)
     
     for cell in sp :
-        Main(cell, nb = 2)
+        Main(cell, nb = randint(0, 1))
         
 #tmp main to test
 #cell = bpy.data.objects['Plane_cell.001_cell.001']
