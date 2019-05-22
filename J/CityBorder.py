@@ -67,7 +67,7 @@ def findPlaceIn(terrain):
     for v in visited_node:
         v.select = True
     '''
-    vec =  terrain.matrix_world * Center.co + Vector((0,0,0.35))
+    vec =  terrain.matrix_world * Center.co 
     bpy.ops.object.mode_set(mode='OBJECT')
     return vec
 

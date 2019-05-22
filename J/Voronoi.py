@@ -32,12 +32,8 @@ def set_parent(child_name, parent_name):
     bpy.data.objects[child_name].select = False
 
 
-def extra_voronoi():
-    bpy.ops.view3d.snap_cursor_to_center()
-    bpy.ops.wm.addon_enable(module="object_fracture_cell")
-    bpy.ops.mesh.primitive_plane_add()
-    bpy.ops.transform.resize(value=(10,10,0))
-    base = bpy.context.active_object.name
+def extra_voronoi(obj):
+    base = obj.name
     to_fusion = []
 
     fracturing(base)
@@ -101,4 +97,9 @@ def extra_voronoi():
 
 
 def execute():
-    return [extra_voronoi() , [obj for obj in bpy.context.scene.objects if obj.name.startswith("Plane_cell")]]
+    bpy.ops.view3d.snap_cursor_to_center()
+    bpy.ops.wm.addon_enable(module="object_fracture_cell")
+    bpy.ops.mesh.primitive_plane_add()
+    bpy.ops.transform.resize(value=(10,10,0))
+    base = bpy.context.active_object
+    return [extra_voronoi(base) , [obj for obj in bpy.context.scene.objects if obj.name.startswith("Plane_cell")]]

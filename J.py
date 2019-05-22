@@ -25,14 +25,13 @@ def creer_anim(road):
     RoadTruc.execute(road)
 
 def execute():
-    T.cleanAll()
     
-    terrain = Terrain.generation(1000, 100)
+    terrain = Terrain.generation(250, 100)
     center = CityBorder.findPlaceIn(terrain)
-    #road = bpy.context.scene.objects.active
     road, cellules = creer_route()
-    bpy.ops.object.select_all(action='SELECT')
-    terrain.select = False
-    bpy.ops.transform.translate(value=(center.x, center.y, center.z+0.1),)
     creer_anim(road)
+    
+    bpy.ops.object.select_all(action='DESELECT')
+    terrain.select = True
+    bpy.ops.transform.translate(value=(-center.x, -center.y, center.z-0.01))
     return [road, cellules]
