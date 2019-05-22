@@ -17,7 +17,7 @@ def get_elevation(i,j,nbPointsLine):
             (j*mul)/nbPointsLine,
             truc)))
     a=(1+a)/2
-    a = 150*pow(a,(1-a)*6)
+    a = 20*pow(a,(1-a)*8)
     #xa = pow(a,8)
     #a = 5 * (xa/(xa+0.002))
     return a 
