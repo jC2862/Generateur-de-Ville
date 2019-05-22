@@ -34,4 +34,5 @@ def execute():
     bpy.ops.object.select_all(action='DESELECT')
     terrain.select = True
     bpy.ops.transform.translate(value=(-center.x, -center.y, center.z-0.01))
+    bpy.ops.object.select_all(action='DESELECT')
     return [road, cellules]
