@@ -42,7 +42,7 @@ def spawn(nb_entities):
         entity = spawn_trafic_entity()
         print("APPEND: " + str(entity))
         entities.append(entity)
-        Utils.set_parent(entity.name, "Trafic")
+        Utils.set_parent(entity.name, trafic.name)
         bpy.context.scene.objects.active = None
     return entities
 
@@ -74,7 +74,7 @@ def execute(road):
     bm.edges.ensure_lookup_table()
     
     nb = bpy.data.scenes['Scene'].frame_end
-    nb_cube = 5
+    nb_cube = 10
 
     cubes = [[[bm.verts[random.randint(0,len(bm.verts)-1)],0]] for i in range(nb_cube)]
     print(cubes[0][0])
@@ -104,24 +104,21 @@ def execute(road):
                 rot += (math.pi if vec.x < 0 else 0)
             else:
                 if vec.x != 0:
-                    rot = math.pi if vec.x <0 else 0
+                    rot = math.pi * (0 if vec.x>0 else 1)
                 elif vec.y !=0:
-                    rot = vec.y * math.pi
-
+                    rot = math.pi/2 * (-1 if vec.y <0 else 1)
+            
             if i > 0:
                 raw_pre_rot = new_cube[len(new_cube)-1][1]
                 pre_rot = raw_pre_rot%MP2
-                nrot = rot % MP2
-                print(math.degrees(pre_rot))
-                print(math.degrees(nrot))
-                diff = -(pre_rot - nrot)
-                print(math.degrees(diff))
-                if abs(diff) > math.pi:
-                    diff = -(MP2 - abs(diff)) #* (1 if diff<0 else -1)
-                print(math.degrees(diff))
-                print(math.degrees((raw_pre_rot + diff)%MP2))
-                print((raw_pre_rot + diff)%MP2)
-                rot = raw_pre_rot + diff
+                nrot = rot%MP2
+                print("%lf %lf " %(math.degrees(pre_rot), math.degrees(nrot)))
+                Z = pre_rot - nrot
+                B = (MP2 - abs(Z)) if abs(Z) > math.pi else abs(Z)
+                C = (B if Z<0 else -B) * (-1 if abs(Z)>math.pi else 1)
+                print("Z %lf B %lf C %lf " %(math.degrees(Z), math.degrees(B), math.degrees(C)))
+                rot = raw_pre_rot + C
+                print("%lf \n" %(math.degrees(rot)))
             #rot = -rot if vec.x < 0 else +rot 
             #rot = rot if rot > 0 else math.pi*2 + rot
             new_cube.append([road.matrix_world * cu[0].co, (rot), cu[1]])

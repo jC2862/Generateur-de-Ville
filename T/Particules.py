@@ -122,7 +122,7 @@ def renameObject(name) :
 	for obj in bpy.context.selected_objects:
 		obj.name = name
 
-def createParticulesCell(obj, name, random_size) :
+def createParticulesCell(obj, name, random_size, hair_length) :
 	monObj = obj
 	monObj.select = True
 	bpy.context.scene.objects.active = monObj
@@ -142,16 +142,30 @@ def createParticulesCell(obj, name, random_size) :
 	bpy.data.particles[lastPart].phase_factor_random = 2
 
 	bpy.data.particles[lastPart].particle_size = 0.05
-	bpy.data.particles[lastPart].count = area
-	bpy.data.particles[lastPart].hair_length = 2.5
+	bpy.data.particles[lastPart].count = area*2
+	bpy.data.particles[lastPart].hair_length = hair_length
 	bpy.data.particles[lastPart].size_random = random_size
 	bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
 	bpy.data.particles[lastPart].distribution = 'RAND'
 	bpy.ops.object.select_all(action='DESELECT')
 
 placeName = []
+CastlePlace = "tmp"
+
+def GetBiggestCell () :
+	maxArea = 0
+	for obj in bpy.context.scene.objects :
+		area = (obj.dimensions[0] + obj.dimensions[1]) / 2
+		if "Plane_cell" in obj.name :
+			if area > maxArea :
+				maxArea = area
+				CastlePlace = obj.name
+	return CastlePlace
+
 #Application des particules de buissons sur tout les objets "plane_cell" (cellules de voronoi)
 def createParticulesOnCell () :
+	freeCell = []
+	maxArea = 0
 	createBush()
 	CreatePlaceGroup()
 	# bpy.ops.object.mode_set(mode='OBJECT')
@@ -159,8 +173,23 @@ def createParticulesOnCell () :
 	for obj in bpy.context.scene.objects :
 		rand = random.uniform(0,1)
 		if "Plane_cell" in obj.name :
+			freeCell.append(obj.name)
+			area = (obj.dimensions[0] + obj.dimensions[1]) / 2
 			if rand < 0.3:
-				createParticulesCell(obj, "Bush", 1)
+				if area > maxArea :
+					maxArea = area
+					CastlePlace = obj.name
+					print(CastlePlace + " < name / area > " + str(maxArea))		
+				else : 
+					createParticulesCell(obj, "Bush", 1, 2)
+				freeCell.remove(obj.name)
 			if rand > 0.8 :
-				createParticulesCell(obj, "Place", 0)
-				placeName.append(obj.name)				
+				if area > maxArea :
+					maxArea = area
+					CastlePlace = obj.name
+				else : 
+					createParticulesCell(obj, "Place", 0, 1.5)
+					placeName.append(obj.name)		
+				freeCell.remove(obj.name)
+
+	return freeCell

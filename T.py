@@ -15,9 +15,11 @@ sys.path.append(dir_path+"/T")
 import Particules
 import StandGenerator
 import Color
+import Castle
 imp.reload(Particules)
 imp.reload(StandGenerator)
 imp.reload(Color)
+imp.reload(Castle)
 
 planR = 10
 density = 300
@@ -54,7 +56,7 @@ def renameObject(name) :
 """MAIN"""
 
 def execute() :
-	cleanAll()
+	#cleanAll()
 	Color.GenerateStandColors ()
 	start2 = time.time()
 	routes, cells = J.execute()
@@ -65,6 +67,8 @@ def execute() :
 		#Selection de la cellule courrante + faire en sorte que cette cellule soit l'objet actif
 		Cell.select = True
 		bpy.context.scene.objects.active = Cell
+
+		bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
 		me = bpy.context.object.data
 
 		#Duplication de la cellule courante qui permet ensuite de créer un trottoir
@@ -87,7 +91,7 @@ def execute() :
 	#Coloration des cellules de Voronoi
 	Color.ColorCells()
 	#Creation des buissons sur les cellules de Voronoi (duplication de chaque cellules: voir fonction dans /T/Particules )
-	Particules.createParticulesOnCell ()
+	freeCell = Particules.createParticulesOnCell ()
 
 	#Changement render mode
 	bpy.context.scene.render.engine = 'CYCLES'
@@ -106,16 +110,23 @@ def execute() :
 	for name in Particules.placeName :
 		area = (bpy.context.scene.objects[name].dimensions[0] 
 			+ bpy.context.scene.objects[name].dimensions[0]) / 2
-		print ("name : " + name + " area : "+ str(area))
+		# print ("name : " + name + " area : "+ str(area))
 		largeur = random.uniform(0.4,0.7)
 		X=bpy.context.scene.objects[name].location[0]
 		Y=bpy.context.scene.objects[name].location[1]
 		if area > 5 : 
 			StandGenerator.MakeStand (largeur*2, largeur, X, Y)
 
+	X=bpy.context.scene.objects[Particules.GetBiggestCell()].location[0]
+	Y=bpy.context.scene.objects[Particules.GetBiggestCell()].location[1]
+	DimX=bpy.context.scene.objects[Particules.GetBiggestCell()].dimensions[0]
+	DimY=bpy.context.scene.objects[Particules.GetBiggestCell()].dimensions[1]
+	Castle.MakeCastle(X,Y,0,DimX,DimY)
 
+	for name in freeCell:
+		print(name)
 
-
+	return freeCell
 
 
 
