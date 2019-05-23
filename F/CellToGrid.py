@@ -8,7 +8,8 @@ from numpy.linalg import norm
 
 def unit_vector(vector):
     #renvoie le vecteur unitaire
-    return vector / norm(vector)
+    if norm(vector) != 0 :
+        return vector / norm(vector)
 
 def angle_between(v1, v2):
     v1_u = unit_vector(v1)

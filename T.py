@@ -56,7 +56,7 @@ def renameObject(name) :
 """MAIN"""
 
 def execute() :
-	#cleanAll()
+	cleanAll()
 	Color.GenerateStandColors ()
 	start2 = time.time()
 	routes, cells = J.execute()
