@@ -18,6 +18,11 @@ imp.reload(CityBorder)
 
 import T
 
+# fonction pour supprimer de la scène tous les éléments
+def cleanAll():
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete(use_global=False)
+
 def creer_route():
     return Voronoi.execute()
 
@@ -25,7 +30,7 @@ def creer_anim(road):
     RoadTruc.execute(road)
 
 def execute():
-    
+    cleanAll()
     terrain = Terrain.generation(250, 100)
     center = CityBorder.findPlaceIn(terrain)
     road, cellules = creer_route()

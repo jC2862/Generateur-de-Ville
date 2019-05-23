@@ -3,12 +3,12 @@ import bmesh
 import sys
 import os
 
-IMPORTS = ["F\_Utils.py", "WindowGenerator.py", "Materil.py"] 
+IMPORTS = ["F\_Utils.py", "WindowGenerator.py", "Door.py", "Materil.py"] 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 for im in IMPORTS:
     print(dir_path+"/"+im)
     sys.path.append(dir_path+"/"+im)
-import F_Utils, WindowGenerator, Material
+import F_Utils, WindowGenerator, Door, Material
 
 region, rv3d, v3d, area = F_Utils.view3d_find(True)
 
@@ -80,6 +80,7 @@ class House :
         #self.debug_archi()
         self.set_3d_cursor()
         self.init_windows()
+        self.init_door()
         
     def init_type_b_house(self) :
         bpy.ops.object.mode_set(mode = 'OBJECT') 
@@ -289,7 +290,9 @@ class House :
         return len(bm.verts) 
     
     def init_windows(self) :
-        self.windows = WindowGenerator.WindowGenerator(self)
+        self.available = self.architecture['walls_face_id']
+        self.windows = WindowGenerator.WindowGenerator(self, self.available)
+        self.available = self.windows.free_walls
         bpy.ops.object.mode_set(mode = 'OBJECT')  
         
         bpy.context.scene.objects.active = bpy.data.objects[self.name]
@@ -299,7 +302,21 @@ class House :
                 obj.select = True
         bpy.context.scene.objects.active.select = True      
         bpy.ops.object.join()        
-        return 0  
+        return 0
+    
+    def init_door(self) :
+        self.door = Door.DoorGenerator(self, self.available)
+        
+        bpy.ops.object.mode_set(mode = 'OBJECT')  
+        
+        bpy.context.scene.objects.active = bpy.data.objects[self.name]
+        bpy.ops.object.select_all(action='DESELECT') 
+        for obj in bpy.context.scene.objects : 
+            if obj.name.startswith(self.name + '_') :
+                obj.select = True
+        bpy.context.scene.objects.active.select = True      
+        bpy.ops.object.join()        
+        return 0
   
 #height, width_front, length_front, width_L, length_L, house_roof_height, roof_width    
 #h = House(1, 3, 4, 2, 6, 4, 0.45)    

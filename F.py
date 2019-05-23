@@ -4,7 +4,7 @@ import os
 import sys
 import imp
 
-def execute () :
+def execute (liste_cell) :
 	dir_path = os.path.dirname(__file__)
 	sys.path.append(dir_path+"/F")
 
@@ -12,4 +12,4 @@ def execute () :
 	imp.reload(Main)
 
 	#cree un grp de taille 2 * 2 (en forme de grille)
-	n = Main.main()        
+	n = Main.main(liste_cell)        

@@ -43,21 +43,23 @@ class Main :
         
         
         
-def main() :
-    work_with = [obj for obj in bpy.context.scene.objects if obj.name.startswith("Plane_cell") and obj.data.name.startswith("Plane_cell")]
+def main(liste_cell) :
+    print(liste_cell)
+    work_with = liste_cell
     avg = 0.0
     for obj in work_with :
-        avg = avg + CellToGrid.get_area(obj)
+        avg = avg + CellToGrid.get_area(bpy.data.objects[obj])
     mean = avg / len(work_with)
 
+	#peut-être enlever cette partie
     select = []
     for obj in work_with :
-        if  CellToGrid.get_area(obj) >= mean :
-            select.append(obj)
+        if  CellToGrid.get_area(bpy.data.objects[obj]) >= mean :
+            select.append(bpy.data.objects[obj])
     rd = randint(0, len(select)) 
     print(rd)
     print(len(select))
-    sp = sample(select, rd)
+    sp = set(sample(select, rd))
     
     for cell in sp :
         Main(cell, nb = randint(0, 1))
@@ -66,4 +68,4 @@ def main() :
 #cell = bpy.data.objects['Plane_cell.001_cell.001']
 #Main(cell)
 
-main()
+#main()

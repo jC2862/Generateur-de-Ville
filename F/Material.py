@@ -29,7 +29,7 @@ class ColorGenerator :
             self.col = self.init_color((0, 1), (0, 1), (0, 1))      
 
     def init_color(self, h, s, v) :
-        hue = randint(h[0], h[1])
+        hue = randint(h[0], h[1])/360
         saturation = randint(s[0], s[1])/100
         value = randint(v[0], v[1])/100
         #print("hue : {}, sat : {}, val : {}".format(hue, saturation, value))
@@ -105,3 +105,10 @@ def affect_mat(obj, name,  type) :
 #affect([], 'Wall')    
 #obj = bpy.data.objects['64']
 #affect_mat(obj, "Frame_mat", 'Frame')
+
+def test() :
+    for h in range(0, 101):
+        for s in range(0, 101):
+            for v in range(0, 101):    
+                a = colorsys.hsv_to_rgb(h, s/100, v/100)
+                print("col : ", a)

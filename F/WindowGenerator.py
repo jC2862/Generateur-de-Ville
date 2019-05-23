@@ -14,15 +14,16 @@ import FaceDrawableArea, Window
 
 class WindowGenerator :
     
-    def __init__(self, house) :
+    def __init__(self, house, available) :
         self.house = house
         # nombre maximal de murs sur lesquels on veut pouvoir dessiner une fenetre
-        max_available_walls = len(self.house.architecture['walls_face_id']) - 1
+        max_available_walls = len(available) - 1
         #on ne veux pas forcement dessiner sur tous ces 5 murs, on laisse
         # l aleatoire decider pour nous
         k = randint(1, max_available_walls)
         #choisit k murs parmi tous nos murs
-        self.occupied_walls = sample(self.house.architecture['walls_face_id'], k)
+        self.occupied_walls = sample(available, k)
+        self.free_walls = set(available) - set(self.occupied_walls)
         obj = bpy.data.objects[self.house.name]
         #on force l'objet courant
         bpy.context.scene.objects.active = obj

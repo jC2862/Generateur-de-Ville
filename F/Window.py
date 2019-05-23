@@ -7,12 +7,12 @@ from math import sqrt
 from numpy import dot, cross, array, matrix, identity
 from numpy.linalg import inv
 
-IMPORTS = ["FaceDrawableArea.py", "F_Utils.py"] 
+IMPORTS = ["FaceDrawableArea.py", "F_Utils.py", "Material.py"] 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 for im in IMPORTS:
     print(dir_path+"/"+im)
     sys.path.append(dir_path+"/"+im)
-import FaceDrawableArea, F_Utils
+import FaceDrawableArea, F_Utils, Material
 
 region, rv3d, v3d, area = F_Utils.view3d_find(True)
 
@@ -37,11 +37,17 @@ class Window :
         #On dessine directment au bon endroit !!!!
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.mesh.primitive_cube_add()
+        
         bpy.context.object.data.name = self.house.obj_name + '_Window'
         bpy.context.object.name = self.house.name + '_Window'
+        
         #on sauvegarde le nom de la maison pour identifier le mesh qui lui correspond !
         self.obj_name = bpy.context.object.data.name
         self.name = bpy.context.object.name
+        obj = bpy.data.objects[self.name]
+        Material.affect_mat(obj, self.name + "_Frame_mat", 'Frame')
+        Material.affect_mat(obj, self.name + "_Window_mat", 'Glass')
+        bpy.context.object.active_material_index = 0
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.transform.resize(value = (self.width, self.thickness, self.height), constraint_axis = (True, True, True))
         bm = bmesh.from_edit_mesh(bpy.context.active_object.data)
@@ -71,7 +77,6 @@ class Window :
             print(v.index)
             v.select = True
         bpy.ops.mesh.edge_face_add()
-        
         bpy.ops.mesh.loopcut_slide(
             override, 
             MESH_OT_loopcut = {
@@ -93,7 +98,10 @@ class Window :
                 "release_confirm" : False
             }
         )    
+        bpy.context.object.active_material_index = 1
         bpy.ops.mesh.edge_face_add()
+        bpy.ops.object.material_slot_assign()
+        bpy.context.object.active_material_index = 0
         bpy.ops.mesh.select_all(action = 'DESELECT')
         #barreau de fenetre vertical
         bpy.ops.mesh.primitive_cube_add()
@@ -162,3 +170,12 @@ class Window :
         #on fill pour créer une vitre
         #on y attribut son material
          #enfin on va supprimer le cube modif ou en faire des volets.
+         
+def test() :         
+    house = 'Cube'
+    face = 3
+    width = .5
+    height = .5
+    thickness = .2
+    win = Window(house, face, width, height, thickness)
+    # win.draw_basic(0)   

@@ -8,14 +8,13 @@ from numpy.linalg import norm
 
 def unit_vector(vector):
     #renvoie le vecteur unitaire
-    if norm(vector) != 0 :
-        return vector / norm(vector)
+    if norm(vector) == 0 : return Vector((0, -1, 0))
+    return vector / norm(vector)
 
 def angle_between(v1, v2):
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
     return arccos(clip(dot(v1_u, v2_u), -1.0, 1.0))
-
 
 #coord globales
 def coord_fix(object, vertex) :
@@ -152,10 +151,10 @@ def scale_percentage(cell, object, face) :
     print("scale of house POST: {} {} {}".format(object.scale[0], object.scale[1], object.scale[2]))
     
     res_1, res_2, res_3 = object.dimensions
-    if object.dimensions[0] < 3 or object.dimensions[0] > 4.2 :
-            res_1 = uniform(3, 4.2)
-    if object.dimensions[1] < 3 or object.dimensions[1] > 4.2 :
-            res_2 = uniform(3, 4.2)
+    if object.dimensions[0] < 2.5 or object.dimensions[0] > 3 :
+            res_1 = uniform(2.5, 3)
+    if object.dimensions[1] < 2.5 or object.dimensions[1] > 3 :
+            res_2 = uniform(2.5, 3)
     if object.dimensions[2] < 3 or object.dimensions[2] > 4:
             res_3 = uniform(3.4, 4)
     object.dimensions = [res_1, res_2, res_3]
