@@ -20,6 +20,7 @@ imp.reload(Particules)
 imp.reload(StandGenerator)
 imp.reload(Color)
 imp.reload(Castle)
+imp.reload(J)
 
 planR = 10
 density = 300
