@@ -218,7 +218,7 @@ class Cell_To_Grid :
         
         print("VEc 1 :", vec_1)
         print("Moi :", angle_between(vec_0, vec_1))
-        print("angle() :",vec_0.angle(vec_1))
+        #print("angle() :",vec_0.angle(vec_1))
         print("HOPE : ", (sign * angle_between(vec_0, vec_1) * 180/pi ))
         return sign * angle_between(vec_0, vec_1)
             
