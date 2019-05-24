@@ -7,9 +7,9 @@ import Utils
 
 def getMaterial():
     for mat in bpy.data.materials:
-        if mat.name == 'TerrainMatee' :
+        if mat.name == 'TerrainMaterial' :
             return mat
-    mat = bpy.data.materials.new(name = 'TerrainMatee')
+    mat = bpy.data.materials.new(name = 'TerrainMaterial')
     mat.use_nodes = True
     
     mat.node_tree.nodes.remove(mat.node_tree.nodes.get('Diffuse BSDF'))

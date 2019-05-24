@@ -110,25 +110,27 @@ def iteration(precSommet, vecteur, level):
     #iteration(nouveau_sommet, rotate(-ra(), vecteur), level-1)
     iteration(nouveau_sommet, rotate(+ra(), vecteur), level-1)
     randominess = (1+noise.noise([precSommet.x/1000, precSommet.y/1000, 0]))/2
-    if random.random() > randominess:
+    if random.random() > 0.99:
         iteration(nouveau_sommet, rotate(math.radians(90), vecteur*0.9), level-1)
 
-print()
-   
-A = Vector((0,0))
-sommets.append(A)
+def create(vec, dir, level):
+    #A = Vector((10,10))
+    A = vec
+    sommets.append(A)
 
-import time
-start = time.time()
-iteration(A, Vector((0,2.5)), 25)
-end = time.time()
+    import time
+    start = time.time()
+    #iteration(A, Vector((0,2.5)), 50)
+    iteration(A, dir, 120)
+    end = time.time()
 
-print("Time %lf" %(end-start))
+    print("Time %lf" %(end-start))
 
-# création du mesh
-conversion()
-mesh_data = bpy.data.meshes.new("cube_mesh_data")
-mesh_data.from_pydata(sommets, aretes, [])
-# création de l'objet contenant le mesh, et ajout à la scène
-obj = bpy.data.objects.new("Test", mesh_data)
-bpy.context.scene.objects.link(obj)
+    # création du mesh
+    conversion()
+    mesh_data = bpy.data.meshes.new("cube_mesh_data")
+    mesh_data.from_pydata(sommets, aretes, [])
+    # création de l'objet contenant le mesh, et ajout à la scène
+    obj = bpy.data.objects.new("Lsystem", mesh_data)
+    bpy.context.scene.objects.link(obj)
+    return obj
