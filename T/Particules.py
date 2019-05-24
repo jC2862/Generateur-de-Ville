@@ -18,6 +18,45 @@ def spawn_tonneau_entity():
 
 	return entity
 
+def spawn_tree1_entity():
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Tree1.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "Tree1" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(0,0,-10))
+
+	return entity
+
+def spawn_tree2_entity():
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Tree2.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "Tree2" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(0,0,-10))
+
+	return entity
+
+def spawn_tree3_entity():
+	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
+	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Tree3.obj"))
+	entity = bpy.context.selected_objects[0]
+	entity.scale *= 0.5
+	entity.name = "Tree3" 
+	#entity = bpy.context.scene.objects.active
+	bpy.context.scene.objects.active = None
+	bpy.ops.transform.translate(
+		value=(0,0,-10))
+
+	return entity
+
 def spawn_caisse_entity():
 	#bpy.ops.mesh.primitive_cube_add(radius=SCALE)
 	imported_object = bpy.ops.import_scene.obj(filepath=str(dir_path+"/Caisse.obj"))
@@ -154,12 +193,15 @@ CastlePlace = "tmp"
 
 def GetBiggestCell () :
 	maxArea = 0
-	for obj in bpy.context.scene.objects :
-		area = (obj.dimensions[0] + obj.dimensions[1]) / 2
-		if "Plane_cell" in obj.name :
-			if area > maxArea :
-				maxArea = area
-				CastlePlace = obj.name
+	bpy.ops.object.select_pattern(pattern="Plane_cell*")
+	for obj in bpy.context.selected_objects :		
+		obj.select = True
+		bpy.context.scene.objects.active = obj
+		area = bpy.context.object.data.polygons[0].area
+		if area > maxArea :
+			maxArea = area
+			CastlePlace = obj.name
+		obj.select = False
 	return CastlePlace
 
 #Application des particules de buissons sur tout les objets "plane_cell" (cellules de voronoi)
@@ -193,3 +235,46 @@ def createParticulesOnCell () :
 				freeCell.remove(obj.name)
 
 	return freeCell
+
+def createParticulesTree(obj, name, random_size, hair_length) :
+	monObj = obj
+	monObj.select = True
+	bpy.context.scene.objects.active = monObj
+	bpy.ops.object.particle_system_add()
+	lastPart = len(bpy.data.particles) -1
+	bpy.data.particles[lastPart].type = 'HAIR'
+	bpy.data.particles[lastPart].render_type = 'GROUP'
+
+	bpy.data.particles[lastPart].dupli_group = bpy.data.groups[name]
+	bpy.data.particles[lastPart].use_advanced_hair = True
+	bpy.data.particles[lastPart].use_rotations = True
+	bpy.data.particles[lastPart].phase_factor = 0.25
+	bpy.data.particles[lastPart].phase_factor_random = 2
+
+	bpy.data.particles[lastPart].particle_size = 0.5
+	bpy.data.particles[lastPart].count = 1000
+	bpy.data.particles[lastPart].hair_length = hair_length
+	bpy.data.particles[lastPart].size_random = random_size
+	bpy.context.object.particle_systems["ParticleSystem"].seed = random.randint(0,9999)
+	bpy.data.particles[lastPart].distribution = 'RAND'
+	bpy.ops.object.mode_set(mode='OBJECT')
+	bpy.ops.object.select_all(action='DESELECT')
+
+def ParticulesOnTerrain() : 
+	spawn_tree1_entity()
+	spawn_tree2_entity()
+	spawn_tree3_entity()
+	bpy.ops.object.select_all(action='DESELECT')
+	bpy.ops.object.select_pattern(pattern="Tree*")
+	bpy.ops.group.create(name="Trees")
+	
+	bpy.ops.object.select_all(action='DESELECT')
+	objects = bpy.data.objects
+	terrain = objects['Terrain']
+	terrain.select = True 
+	bpy.context.scene.objects.active = terrain
+	bpy.ops.object.mode_set(mode='EDIT')
+	bpy.ops.mesh.select_all(action='SELECT')
+
+	bpy.ops.mesh.flip_normals()
+	createParticulesTree(terrain, "Trees", 0, 5)

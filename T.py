@@ -26,12 +26,17 @@ density = 300
 
 #Supprime tous les objets ainsi que toutes les data (particules, textures...)
 def cleanAll():
-    bpy.ops.object.mode_set(mode = 'OBJECT')
-    bpy.ops.object.select_all(action='SELECT')
-    bpy.ops.object.delete(use_global=False)
-    for bpy_data_iter in (bpy.data.objects,bpy.data.meshes,bpy.data.lamps,bpy.data.cameras,bpy.data.particles,bpy.data.materials,bpy.data.groups):
-        for id_data in bpy_data_iter:
-            bpy_data_iter.remove(id_data)
+	# if len(bpy.data.objets) < 1:return
+	bpy.ops.object.mode_set(mode = 'OBJECT')
+	bpy.ops.object.select_all(action='SELECT')
+	bpy.ops.object.delete(use_global=False)
+	for bpy_data_iter in (bpy.data.objects,bpy.data.meshes,bpy.data.lamps,bpy.data.cameras,bpy.data.particles,bpy.data.materials,bpy.data.groups):
+		for id_data in bpy_data_iter:
+			bpy_data_iter.remove(id_data)
+
+def renameObject(name) :
+	for obj in bpy.context.selected_objects:
+		obj.name = name
 
 #permet d'obtenir seulement le cadre (les edges) d'une cellule selectionnée
 def deleteCell () :
@@ -43,7 +48,7 @@ def deleteCell () :
 def makePavement () :
 	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
 	bpy.ops.transform.resize(value=(0.95, 0.95, 0.95))
-	bpy.ops.mesh.select_all(action='SELECT')
+	bpy.ops.mesh.select_all(action='DESELECT')
 	bpy.ops.mesh.extrude_region_move(
 		TRANSFORM_OT_translate={"value":(0, 0, 0.02) })
 
@@ -52,6 +57,19 @@ def renameObject(name) :
 	for obj in bpy.context.selected_objects:
 		obj.name = name
 
+
+def CutTerrain () : 
+	objects = bpy.data.objects
+	cube = objects['CutCube']
+	terrain = objects['Terrain']
+
+	bool_one = terrain.modifiers.new(type="BOOLEAN", name="bool 1")
+	bool_one.object = cube
+	bool_one.operation = 'DIFFERENCE'
+	terrain.select = True 
+	bpy.context.scene.objects.active = terrain
+	bpy.ops.object.modifier_apply(apply_as='DATA', modifier="bool 1")
+	cube.hide = True
 
 """MAIN"""
 
@@ -96,11 +114,12 @@ def execute() :
 	#Changement render mode
 	bpy.context.scene.render.engine = 'CYCLES'
 	#Ajout d'une lampe
-	bpy.ops.object.lamp_add(type='AREA', view_align=False, location=(0, 0, 4))
+	# bpy.ops.object.lamp_add(type='AREA', view_align=False, location=(0, 0, 4))
 
+	scaleValue = 3
 	#Redimension de l'ensemble de la scene 
 	bpy.ops.object.select_all(action='SELECT')
-	bpy.ops.transform.resize(value=(3, 3, 3))
+	bpy.ops.transform.resize(value=(scaleValue, scaleValue, scaleValue))
 
 	# for obj in bpy.context.scene.objects :
 	# 	rand = random.randint(0,1)
@@ -117,14 +136,23 @@ def execute() :
 		if area > 5 : 
 			StandGenerator.MakeStand (largeur*2, largeur, X, Y)
 
+	print("CASTLE : " + Particules.GetBiggestCell())
 	X=bpy.context.scene.objects[Particules.GetBiggestCell()].location[0]
 	Y=bpy.context.scene.objects[Particules.GetBiggestCell()].location[1]
 	DimX=bpy.context.scene.objects[Particules.GetBiggestCell()].dimensions[0]
 	DimY=bpy.context.scene.objects[Particules.GetBiggestCell()].dimensions[1]
 	Castle.MakeCastle(X,Y,0,DimX,DimY)
 
-	for name in freeCell:
-		print(name)
+
+	bpy.ops.object.mode_set(mode='OBJECT')
+	bpy.ops.object.select_all(action='DESELECT')
+	test1=bpy.context.scene.objects["Plane"].location[0]
+	test2=bpy.context.scene.objects["Plane"].location[1]
+	bpy.ops.mesh.primitive_cube_add(radius=planR*scaleValue-0.5, location=(test1+0.1, test2+0.1, 0))
+	renameObject("CutCube")
+	
+	CutTerrain()
+	Particules.ParticulesOnTerrain()
 
 	return freeCell
 
