@@ -5,6 +5,7 @@ from mathutils import Vector
 from mathutils import noise
 import math
 import random
+import Utils
 
 sommets = []
 aretes = []
@@ -114,6 +115,7 @@ def iteration(precSommet, vecteur, level):
         iteration(nouveau_sommet, rotate(math.radians(90), vecteur*0.9), level-1)
 
 def create(vec, dir, level):
+    Utils.unselect()
     #A = Vector((10,10))
     A = vec
     sommets.append(A)
@@ -121,7 +123,7 @@ def create(vec, dir, level):
     import time
     start = time.time()
     #iteration(A, Vector((0,2.5)), 50)
-    iteration(A, dir, 120)
+    iteration(A, dir, level)
     end = time.time()
 
     print("Time %lf" %(end-start))

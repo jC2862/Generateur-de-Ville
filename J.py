@@ -91,7 +91,7 @@ def execute():
     terrain = T.generation(250, 100)
     center = CityBorder.findPlaceIn(terrain)
     road, cellules = creer_route()
-    #creer_anim(road)
+    creer_anim(road)
     
     bpy.ops.object.select_all(action='DESELECT')
     terrain.select = True
@@ -102,7 +102,7 @@ def execute():
     cy = (1 if center.y < 0 else -1)
     vec = Vector((10 * cx, 10 * cy))
     dir = Vector((vec.normalized().x, vec.normalized().y))
-    system = Lsystem.create(vec, dir, 8)
+    system = Lsystem.create(vec, dir, 150)
     bpy.ops.object.select_all(action='DESELECT')
     correct_system(system)
     bpy.ops.object.select_all(action='DESELECT')

@@ -17,10 +17,10 @@ import StandGenerator
 import Color
 import Castle
 imp.reload(Particules)
-imp.reload(J)
 imp.reload(StandGenerator)
 imp.reload(Color)
 imp.reload(Castle)
+imp.reload(J)
 
 planR = 10
 density = 300
