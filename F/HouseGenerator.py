@@ -53,9 +53,9 @@ def main() :
     bpy.context.area.type = previous_context
 
     h = generateRandomHouse()
-    bpy.context.object.scale[0] = 0.8
-    bpy.context.object.scale[1] = 0.8
-    bpy.context.object.scale[2] = 0.8
+    bpy.context.object.scale[0] = 0.4
+    bpy.context.object.scale[1] = 0.4
+    bpy.context.object.scale[2] = 0.4
     bpy.ops.object.mode_set(mode = 'OBJECT') 
     #bpy.ops.mesh.select_all(action = 'DESELECT')
     return h

@@ -20,6 +20,7 @@ imp.reload(Particules)
 imp.reload(StandGenerator)
 imp.reload(Color)
 imp.reload(Castle)
+imp.reload(J)
 
 planR = 10
 density = 300
@@ -46,9 +47,37 @@ def deleteCell () :
 
 #fonction qui construit les trottoirs a partir du cadre (edges) d'une cellules de voronoi prealablement selectionnée
 def makePavement () :
-	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":(0,0,0)})
-	bpy.ops.transform.resize(value=(0.95, 0.95, 0.95))
-	bpy.ops.mesh.select_all(action='DESELECT')
+	bpy.ops.mesh.extrude_region_move(
+		MESH_OT_extrude_region={"mirror":False}, 
+		TRANSFORM_OT_translate={"value":(0, 0, 0.2), 
+		"constraint_axis":(False, False, True), 
+		"constraint_orientation":'GLOBAL', 
+		"mirror":False, 
+		"proportional":'DISABLED', 
+		"proportional_edit_falloff":'SMOOTH',
+		"proportional_size":1, 
+		"snap":False, 
+		"snap_target":'CLOSEST', 
+		"snap_point":(0, 0, 0), 
+		"snap_align":False, 
+		"snap_normal":(0, 0, 0), 
+		"gpencil_strokes":False, 
+		"texture_space":False, 
+		"remove_on_cancel":False, 
+		"release_confirm":False, 
+		"use_accurate":False})
+	bpy.ops.transform.resize(value=(0.94, 0.94, 0.94))
+	bpy.ops.transform.translate(
+		value=(0, 0, -0.2), 
+		constraint_axis=(False, False, True), 
+		constraint_orientation='GLOBAL', 
+		mirror=False, 
+		proportional='DISABLED', 
+		proportional_edit_falloff='SMOOTH', 
+		proportional_size=1, 
+		release_confirm=True, 
+		use_accurate=False)
+	bpy.ops.mesh.select_all(action='SELECT')
 	bpy.ops.mesh.extrude_region_move(
 		TRANSFORM_OT_translate={"value":(0, 0, 0.02) })
 
@@ -85,9 +114,9 @@ def execute() :
 		#Selection de la cellule courrante + faire en sorte que cette cellule soit l'objet actif
 		Cell.select = True
 		bpy.context.scene.objects.active = Cell
-
+		# print(Cell.name)
 		bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
-		me = bpy.context.object.data
+		# me = bpy.context.object.data
 
 		#Duplication de la cellule courante qui permet ensuite de créer un trottoir
 		bpy.ops.object.duplicate()

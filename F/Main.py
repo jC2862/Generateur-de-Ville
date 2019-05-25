@@ -2,14 +2,15 @@ import bpy
 import bmesh
 import os
 import sys
+from math import ceil
 from random import sample, randint, uniform
 
-IMPORTS = ["HouseGenerator.py", "CellToGrid.py"] 
+IMPORTS = ["HouseGenerator.py", "CellToGrid.py", "Sky.py"] 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 for im in IMPORTS:
     print(dir_path+"/"+im)
     sys.path.append(dir_path+"/"+im)
-import HouseGenerator, CellToGrid
+import HouseGenerator, CellToGrid, Sky
 
 class Main :
     
@@ -30,7 +31,7 @@ class Main :
         print(rotation)
         skip = 0
         for elt in rotation :
-            if uniform(0, 1) > 0.8 :
+            if uniform(0, 1) > 0.7 :
                 break
             #    continue
             #skip = skip + 1
@@ -43,26 +44,35 @@ class Main :
         
         
         
-def main(liste_cell) :
-    print(liste_cell)
-    work_with = liste_cell
-    avg = 0.0
-    for obj in work_with :
-        avg = avg + CellToGrid.get_area(bpy.data.objects[obj])
-    mean = avg / len(work_with)
-
-	#peut-être enlever cette partie
-    select = []
-    for obj in work_with :
-        if  CellToGrid.get_area(bpy.data.objects[obj]) >= mean :
-            select.append(bpy.data.objects[obj])
-    rd = randint(0, len(select)) 
-    print(rd)
-    print(len(select))
-    sp = set(sample(select, rd))
+def main(selected_list) :
     
-    for cell in sp :
-        Main(cell, nb = randint(0, 1))
+    scene = bpy.context.scene
+
+    # Create new lamp datablock
+    lamp_data = bpy.data.lamps.new(name="Sun", type='SUN')
+
+    # Create new object with our lamp datablock
+    lamp_object = bpy.data.objects.new(name="Sun", object_data=lamp_data)
+
+    # Link lamp object to the scene so it'll appear in this scene
+    scene.objects.link(lamp_object)
+    
+    # Place lamp to a specified location
+    lamp_object.location = (5.0, 5.0, 5.0)
+    
+    #lamp_object.data.node_tree.nodes['Emission'].inputs['Strength'].default_value = 2
+
+    #args optionnels : color, turbidity, albedo
+    Sky.main()
+   
+    #rd = randint(ceil(len(select)/2), len(select)) 
+    #print(rd)
+    #print(len(select))
+    #sp = set(sample(select, rd))
+    
+    for cell in selected_list :
+        #la subdivision minimale fait une taille de 1, elle se fera même si on passe un 0 !
+        Main(bpy.data.objects[cell], nb = randint(0, 1))
         
 #tmp main to test
 #cell = bpy.data.objects['Plane_cell.001_cell.001']

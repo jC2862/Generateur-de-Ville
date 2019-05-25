@@ -2,7 +2,11 @@ import J
 import T
 import F
 import time 
+import imp
 
+imp.reload(J)
+imp.reload(T)
+imp.reload(F)
 def execute():
 	start = time.time()
 	#clean_all()

@@ -215,8 +215,10 @@ def createParticulesOnCell () :
 	for obj in bpy.context.scene.objects :
 		rand = random.uniform(0,1)
 		if "Plane_cell" in obj.name :
+			obj.select = True
+			bpy.context.scene.objects.active = obj
 			freeCell.append(obj.name)
-			area = (obj.dimensions[0] + obj.dimensions[1]) / 2
+			area = bpy.context.object.data.polygons[0].area
 			if rand < 0.3:
 				if area > maxArea :
 					maxArea = area
@@ -233,6 +235,7 @@ def createParticulesOnCell () :
 					createParticulesCell(obj, "Place", 0, 1.5)
 					placeName.append(obj.name)		
 				freeCell.remove(obj.name)
+		obj.select = False
 
 	return freeCell
 

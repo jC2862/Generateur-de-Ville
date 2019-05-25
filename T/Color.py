@@ -1,5 +1,13 @@
 import bpy
 import random
+import os
+import sys
+import imp
+
+dir_path = os.path.dirname(__file__)
+sys.path.append(dir_path+"/../F")
+import Material
+imp.reload(Material)
 
 #Ajoute une couleur "color" a l'objet "obj"
 def setColorAll(obj, color):
@@ -55,7 +63,9 @@ def ColorCells () :
 
 
 def ColorUnderRoad () :
-	newColor((0.9,0.6,0.3),"UnderRoad")
-	#Coloration de l'objet qui s'appelle "Plane" (plateforme sous qui represente les routes)
 	monObj = bpy.context.scene.objects["Plane"]
-	setColorAll(monObj, "UnderRoad")
+	monObj.data.materials.append(bpy.data.materials['SolBase'])
+	Material.affect_mat(monObj, "SolBase", 'Sol')
+	# newColor((0.9,0.6,0.3),"UnderRoad")
+	#Coloration de l'objet qui s'appelle "Plane" (plateforme sous qui represente les routes)
+	# setColorAll(monObj, "UnderRoad")
