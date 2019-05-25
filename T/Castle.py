@@ -86,7 +86,7 @@ def MakeCastle(x,y,z,DimX,DimY) :
 	DimZ = bpy.context.object.dimensions[2] 
 	bpy.context.object.location[0] = x
 	bpy.context.object.location[1] = y
-	bpy.context.object.location[2] = 0.5
+	bpy.context.object.location[2] = 0
 
 
 def execute () :

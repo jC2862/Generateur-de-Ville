@@ -58,7 +58,7 @@ def MakeStand (longueur, largeur, x, y) :
 	bpy.ops.object.join()
 	bpy.context.selected_objects[0].name = "Stand"
 	bpy.ops.transform.translate(
-		value=(0, 0, 0.5), 
+		value=(0, 0, 0), 
 		constraint_axis=(False, False, True))
 	rotation = random.uniform(0,math.pi)
 	bpy.ops.transform.rotate(
