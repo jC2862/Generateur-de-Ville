@@ -152,11 +152,11 @@ def scale_percentage(cell, object, face) :
     
     res_1, res_2, res_3 = object.dimensions
     if object.dimensions[0] < 2.5 or object.dimensions[0] > 3 :
-            res_1 = uniform(2.5, 3)
+            res_1 = uniform(2, 2.5)
     if object.dimensions[1] < 2.5 or object.dimensions[1] > 3 :
-            res_2 = uniform(2.5, 3)
+            res_2 = uniform(2, 2.5)
     if object.dimensions[2] < 3 or object.dimensions[2] > 4:
-            res_3 = uniform(3.4, 4)
+            res_3 = uniform(3,3.6)
     object.dimensions = [res_1, res_2, res_3]
         
 #bm = bmesh.from_edit_mesh(bpy.context.active_object.data)

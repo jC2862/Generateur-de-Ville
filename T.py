@@ -98,7 +98,9 @@ def CutTerrain () :
 	terrain.select = True 
 	bpy.context.scene.objects.active = terrain
 	bpy.ops.object.modifier_apply(apply_as='DATA', modifier="bool 1")
-	cube.hide = True
+	terrain.select = False 
+	cube.select = True
+	bpy.ops.object.delete(use_global=False)
 
 """MAIN"""
 
